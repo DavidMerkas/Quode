@@ -113,10 +113,9 @@ export function DuckPanel({ mode, onModeChange, onSend }: DuckPanelProps) {
     >
       <div className="border-border/60 flex h-14 shrink-0 items-center justify-between border-b px-4">
         <div className="flex items-center gap-2.5">
-          <DuckMascot
-            size={26}
-            state={streamingId ? "speaking" : "idle"}
-          />
+          {!empty && (
+            <DuckMascot size={26} state={streamingId ? "speaking" : "idle"} />
+          )}
           <div className="flex flex-col leading-tight">
             <span className="text-fg text-sm font-semibold">Duck</span>
             <span className="text-fg-subtle text-[10px]">

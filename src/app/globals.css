@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces — warm cream-yellow, light-first */
-  --color-base: #fbf6e3;
-  --color-surface: #fdf8ea;
-  --color-surface-2: #f6ecc8;
-  --color-surface-3: #eddfa1;
-  --color-border: #e0c87c;
-  --color-border-strong: #c9a943;
+  /* Surfaces — saturated honey-cream around the editor "paper" */
+  --color-base: #f7e29a;          /* page background (more yellow) */
+  --color-surface: #fbe9aa;       /* headers, drawer top, panel chrome */
+  --color-surface-2: #f3d97e;     /* inputs, raised surfaces, user bubble */
+  --color-surface-3: #e7c65a;     /* hover/active raised */
+  --color-border: #c7a13a;
+  --color-border-strong: #9d7d20;
 
-  /* Text */
-  --color-fg: #2b1f02;
-  --color-fg-muted: #5e4b15;
-  --color-fg-subtle: #8a763b;
+  /* Text — deep warm brown, high contrast on yellow */
+  --color-fg: #261a02;
+  --color-fg-muted: #5a4510;
+  --color-fg-subtle: #856c28;
 
   /* Brand */
   --color-duck: #ffd43b;
@@ -21,9 +21,9 @@
   --color-quack-soft: #ffb07a;
 
   /* Semantic */
-  --color-danger: #c0392b;
-  --color-success: #2f8f3a;
-  --color-warn: #b8860b;
+  --color-danger: #b1352a;
+  --color-success: #2c7a35;
+  --color-warn: #a36b08;
 
   /* Fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;

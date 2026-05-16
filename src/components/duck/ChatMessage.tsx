@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import { DuckMascot } from "@/components/duck/DuckMascot";
 import { DUCK_MODES, type ChatMessage as ChatMsg } from "@/types/duck";
 import { DuckMarkdown } from "@/lib/duck/markdown";
 
@@ -31,41 +30,30 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
     );
   }
 
-  const empty = !message.content;
-  const showThinkingState = isStreaming && empty;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="flex items-start gap-2.5"
+      className="min-w-0"
     >
-      <DuckMascot
-        size={30}
-        state={
-          showThinkingState ? "thinking" : isStreaming ? "speaking" : "idle"
-        }
-      />
-      <div className="min-w-0 flex-1 pt-0.5">
-        {modeLabel && (
-          <div className="text-fg-subtle mb-1 flex items-center gap-1.5 text-[10px] font-medium tracking-wide uppercase">
-            <span className="bg-[var(--color-duck)] inline-block size-1 rounded-full" />
-            Duck · {modeLabel}
-          </div>
-        )}
-        <div className={isStreaming ? "opacity-95" : undefined}>
-          {message.content ? (
-            <DuckMarkdown>{message.content}</DuckMarkdown>
-          ) : (
-            <span className="text-fg-subtle text-sm italic">thinking…</span>
-          )}
-          {isStreaming && message.content && (
-            <span className="streaming-caret" aria-hidden>
-              &nbsp;
-            </span>
-          )}
+      {modeLabel && (
+        <div className="text-fg-subtle mb-1 flex items-center gap-1.5 text-[10px] font-medium tracking-wide uppercase">
+          <span className="bg-[var(--color-quack)] inline-block size-1 rounded-full" />
+          Duck · {modeLabel}
         </div>
+      )}
+      <div className={isStreaming ? "opacity-95" : undefined}>
+        {message.content ? (
+          <DuckMarkdown>{message.content}</DuckMarkdown>
+        ) : (
+          <span className="text-fg-subtle text-sm italic">thinking…</span>
+        )}
+        {isStreaming && message.content && (
+          <span className="streaming-caret" aria-hidden>
+            &nbsp;
+          </span>
+        )}
       </div>
     </motion.div>
   );

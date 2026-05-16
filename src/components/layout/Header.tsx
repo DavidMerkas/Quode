@@ -2,7 +2,6 @@
 
 import { ChevronDown, Loader2, Play } from "lucide-react";
 import { motion } from "motion/react";
-import { DuckMascot } from "@/components/duck/DuckMascot";
 import { LANGUAGES, type LanguageId } from "@/types/language";
 import { cn } from "@/lib/utils/cn";
 
@@ -22,16 +21,13 @@ export function Header({
   return (
     <header className="border-border/70 bg-base/85 supports-[backdrop-filter]:bg-base/60 sticky top-0 z-20 grid h-14 shrink-0 grid-cols-3 items-center gap-4 border-b px-4 backdrop-blur-md">
       {/* Left: brand */}
-      <div className="flex items-center gap-2.5">
-        <DuckMascot size={30} />
-        <div className="flex items-baseline gap-2">
-          <span className="text-fg text-[15px] font-semibold tracking-tight">
-            Quode
-          </span>
-          <span className="text-fg-subtle hidden text-[11px] font-medium tracking-wide sm:inline">
-            code with Duck
-          </span>
-        </div>
+      <div className="flex items-center gap-2">
+        <span className="text-fg text-[15px] font-semibold tracking-tight">
+          Quode
+        </span>
+        <span className="text-fg-subtle hidden text-[11px] font-medium tracking-wide sm:inline">
+          · code with Duck
+        </span>
       </div>
 
       {/* Center: controls */}
