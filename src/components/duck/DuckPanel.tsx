@@ -21,6 +21,7 @@ interface DuckPanelProps {
     mode: DuckMode,
     onDelta: (delta: string) => void,
   ) => Promise<void>;
+  activeFileName: string;
 }
 
 const SUGGESTIONS: Record<DuckMode, string[]> = {
@@ -46,7 +47,12 @@ const SUGGESTIONS: Record<DuckMode, string[]> = {
   ],
 };
 
-export function DuckPanel({ mode, onModeChange, onSend }: DuckPanelProps) {
+export function DuckPanel({
+  mode,
+  onModeChange,
+  onSend,
+  activeFileName,
+}: DuckPanelProps) {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [draft, setDraft] = useState("");
   const [streamingId, setStreamingId] = useState<string | null>(null);
@@ -119,7 +125,9 @@ export function DuckPanel({ mode, onModeChange, onSend }: DuckPanelProps) {
           <div className="flex flex-col leading-tight">
             <span className="text-fg text-sm font-semibold">Duck</span>
             <span className="text-fg-subtle text-[10px]">
-              {streamingId ? "thinking out loud…" : "ready"}
+              {streamingId
+                ? `quacking about ${activeFileName}…`
+                : `swimming over ${activeFileName}`}
             </span>
           </div>
         </div>

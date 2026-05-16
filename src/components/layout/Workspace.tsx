@@ -1,34 +1,68 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { EditorPanel } from "@/components/editor/EditorPanel";
+import { TabStrip } from "@/components/editor/TabStrip";
+import { ZoomControl } from "@/components/editor/ZoomControl";
 import { OutputDrawer, type RunResult } from "@/components/editor/OutputDrawer";
 import { DuckPanel } from "@/components/duck/DuckPanel";
-import {
-  DEFAULT_LANGUAGE,
-  getLanguage,
-  type LanguageId,
-} from "@/types/language";
+import { DEFAULT_LANGUAGE, type LanguageId } from "@/types/language";
+import { newTab, type EditorTab } from "@/types/tab";
 import type { DuckMode } from "@/types/duck";
 
 export function Workspace() {
-  const [language, setLanguage] = useState<LanguageId>(DEFAULT_LANGUAGE);
-  const [code, setCode] = useState<string>(
-    getLanguage(DEFAULT_LANGUAGE).starter,
-  );
+  const [tabs, setTabs] = useState<EditorTab[]>(() => [newTab(DEFAULT_LANGUAGE, [])]);
+  const [activeId, setActiveId] = useState<string>(() => tabs[0].id);
   const [mode, setMode] = useState<DuckMode>("explain");
 
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState<RunResult | null>(null);
   const [outputOpen, setOutputOpen] = useState(false);
 
-  const handleLanguageChange = (id: LanguageId) => {
-    setLanguage(id);
-    setCode(getLanguage(id).starter);
+  const activeTab = useMemo(
+    () => tabs.find((t) => t.id === activeId) ?? tabs[0],
+    [tabs, activeId],
+  );
+
+  const handleNewTab = useCallback((lang: LanguageId) => {
+    setTabs((cur) => {
+      const t = newTab(lang, cur);
+      setActiveId(t.id);
+      return [...cur, t];
+    });
+  }, []);
+
+  const handleCloseTab = useCallback(
+    (id: string) => {
+      setTabs((cur) => {
+        if (cur.length <= 1) return cur;
+        const idx = cur.findIndex((t) => t.id === id);
+        const next = cur.filter((t) => t.id !== id);
+        if (id === activeId) {
+          const fallback = next[Math.max(0, idx - 1)];
+          setActiveId(fallback.id);
+        }
+        return next;
+      });
+    },
+    [activeId],
+  );
+
+  const handleActivate = useCallback((id: string) => {
+    setActiveId(id);
     setOutput(null);
     setOutputOpen(false);
-  };
+  }, []);
+
+  const handleCodeChange = useCallback(
+    (code: string) => {
+      setTabs((cur) =>
+        cur.map((t) => (t.id === activeId ? { ...t, code } : t)),
+      );
+    },
+    [activeId],
+  );
 
   const handleRun = useCallback(async () => {
     if (isRunning) return;
@@ -40,7 +74,10 @@ export function Workspace() {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language, code }),
+        body: JSON.stringify({
+          language: activeTab.language,
+          code: activeTab.code,
+        }),
       });
       const data = (await res.json()) as
         | {
@@ -56,12 +93,7 @@ export function Workspace() {
           "error" in data
             ? `${data.error}${data.detail ? `: ${data.detail}` : ""}`
             : "Run failed";
-        setOutput({
-          stdout: "",
-          stderr: msg,
-          exitCode: -1,
-          durationMs: 0,
-        });
+        setOutput({ stdout: "", stderr: msg, exitCode: -1, durationMs: 0 });
       } else {
         setOutput(data);
       }
@@ -78,7 +110,7 @@ export function Workspace() {
     } finally {
       setIsRunning(false);
     }
-  }, [code, language, isRunning]);
+  }, [activeTab, isRunning]);
 
   // Global ⌘/Ctrl+Enter
   useEffect(() => {
@@ -104,8 +136,8 @@ export function Workspace() {
         body: JSON.stringify({
           message: text,
           mode: duckMode,
-          code,
-          language,
+          code: activeTab.code,
+          language: activeTab.language,
         }),
       });
 
@@ -127,24 +159,26 @@ export function Workspace() {
       const tail = decoder.decode();
       if (tail) onDelta(tail);
     },
-    [code, language],
+    [activeTab],
   );
 
   return (
     <div className="bg-base text-fg flex h-screen min-h-0 flex-col">
-      <Header
-        language={language}
-        onLanguageChange={handleLanguageChange}
-        onRun={handleRun}
-        isRunning={isRunning}
-      />
+      <Header onRun={handleRun} isRunning={isRunning} />
 
       <div className="flex min-h-0 flex-1">
         <main className="flex min-w-0 flex-1 flex-col">
+          <TabStrip
+            tabs={tabs}
+            activeId={activeTab.id}
+            onActivate={handleActivate}
+            onClose={handleCloseTab}
+            onNew={handleNewTab}
+            rightSlot={<ZoomControl />}
+          />
           <EditorPanel
-            code={code}
-            onChange={setCode}
-            language={language}
+            tab={activeTab}
+            onChange={handleCodeChange}
             onRun={handleRun}
           />
           <OutputDrawer
@@ -160,6 +194,7 @@ export function Workspace() {
             mode={mode}
             onModeChange={setMode}
             onSend={handleDuckSend}
+            activeFileName={activeTab.name}
           />
         </div>
       </div>
