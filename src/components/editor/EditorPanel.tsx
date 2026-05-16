@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { OnMount, OnChange } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
-import { FileCode2, Minus, Plus } from "lucide-react";
+import { FileCode2, ZoomIn, ZoomOut } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import {
   MAX_SIZE,
@@ -255,23 +255,23 @@ function ZoomControl({
         type="button"
         onClick={onDec}
         disabled={atMin}
-        aria-label="Decrease font size"
+        aria-label="Zoom out"
         title="Zoom out (⌘−)"
         className={cn(
-          "flex h-full w-6 items-center justify-center transition-colors",
+          "flex h-full w-7 items-center justify-center transition-colors",
           atMin
             ? "text-fg-subtle cursor-not-allowed"
             : "text-fg-muted hover:text-fg hover:bg-surface-2",
         )}
       >
-        <Minus className="size-3" />
+        <ZoomOut className="size-3.5" />
       </button>
       <button
         type="button"
         onClick={onReset}
         title="Reset zoom (⌘0)"
-        aria-label={`Editor font size, ${size} pixels. Click to reset.`}
-        className="text-fg-muted hover:text-fg hover:bg-surface-2 flex h-full min-w-[2.5rem] items-center justify-center px-1 font-mono text-[11px] transition-colors"
+        aria-label={`Editor zoom, ${size} pixels. Click to reset.`}
+        className="text-fg-muted hover:text-fg hover:bg-surface-2 flex h-full min-w-[2.25rem] items-center justify-center px-1 font-mono text-[11px] transition-colors"
       >
         {size}
       </button>
@@ -279,16 +279,16 @@ function ZoomControl({
         type="button"
         onClick={onInc}
         disabled={atMax}
-        aria-label="Increase font size"
+        aria-label="Zoom in"
         title="Zoom in (⌘+)"
         className={cn(
-          "flex h-full w-6 items-center justify-center transition-colors",
+          "flex h-full w-7 items-center justify-center transition-colors",
           atMax
             ? "text-fg-subtle cursor-not-allowed"
             : "text-fg-muted hover:text-fg hover:bg-surface-2",
         )}
       >
-        <Plus className="size-3" />
+        <ZoomIn className="size-3.5" />
       </button>
     </div>
   );
