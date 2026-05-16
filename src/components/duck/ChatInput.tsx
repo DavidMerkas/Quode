@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
+import { motion } from "motion/react";
+import { Send } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface ChatInputProps {
@@ -19,19 +21,22 @@ export function ChatInput({
   placeholder = "Ask the duck…",
 }: ChatInputProps) {
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const canSubmit = !disabled && value.trim().length > 0;
 
   const handleKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (value.trim() && !disabled) onSubmit();
+      if (canSubmit) onSubmit();
     }
   };
 
   return (
     <div
       className={cn(
-        "border-border bg-surface-2 focus-within:border-border-strong rounded-lg border",
-        "flex items-end gap-2 p-2 transition-colors",
+        "border-border bg-surface-2/70 rounded-xl border",
+        "focus-within:border-[var(--color-duck)]/60 focus-within:bg-surface-2",
+        "focus-within:shadow-[0_0_0_3px_var(--color-duck)_/0.12]",
+        "flex items-end gap-2 p-2 transition-all",
       )}
     >
       <textarea
@@ -48,33 +53,28 @@ export function ChatInput({
         disabled={disabled}
         placeholder={placeholder}
         className={cn(
-          "text-fg placeholder:text-fg-subtle min-h-[1.5rem] flex-1 resize-none bg-transparent",
-          "text-sm leading-6 outline-none",
+          "text-fg placeholder:text-fg-subtle min-h-[1.5rem] flex-1 resize-none bg-transparent px-1.5",
+          "text-sm leading-6 outline-none disabled:opacity-50",
         )}
       />
-      <button
+      <motion.button
         type="button"
         onClick={onSubmit}
-        disabled={disabled || !value.trim()}
-        aria-label="Send"
+        disabled={!canSubmit}
+        aria-label="Send to Duck"
+        whileTap={canSubmit ? { scale: 0.92 } : undefined}
+        transition={{ type: "spring", stiffness: 600, damping: 28 }}
         className={cn(
-          "inline-flex size-7 shrink-0 items-center justify-center rounded-md",
-          "bg-[var(--color-duck)] text-[#1a1300] hover:brightness-110",
-          "disabled:cursor-not-allowed disabled:opacity-40",
-          "transition-all",
+          "inline-flex size-8 shrink-0 items-center justify-center rounded-lg",
+          canSubmit
+            ? "bg-[var(--color-duck)] text-[#1a1300] shadow-[0_1px_0_rgba(255,255,255,0.25)_inset]"
+            : "bg-surface-3 text-fg-subtle",
+          "disabled:cursor-not-allowed",
+          "transition-colors",
         )}
       >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-          <path
-            d="M2 8l12-5-4 13-2.5-5L2 8z"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-            fill="currentColor"
-            fillOpacity="0.2"
-          />
-        </svg>
-      </button>
+        <Send className="size-3.5" />
+      </motion.button>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
+import { motion } from "motion/react";
 import { DUCK_MODES, type DuckMode } from "@/types/duck";
-import { cn } from "@/lib/utils/cn";
 
 interface ModePillsProps {
   value: DuckMode;
@@ -13,7 +13,7 @@ export function ModePills({ value, onChange }: ModePillsProps) {
     <div
       role="tablist"
       aria-label="Duck mode"
-      className="border-border bg-surface-2/60 inline-flex items-center gap-0.5 rounded-lg border p-0.5"
+      className="border-border bg-surface-2/70 inline-flex items-center rounded-lg border p-0.5"
     >
       {DUCK_MODES.map((m) => {
         const active = m.id === value;
@@ -25,14 +25,24 @@ export function ModePills({ value, onChange }: ModePillsProps) {
             aria-selected={active}
             title={m.blurb}
             onClick={() => onChange(m.id)}
-            className={cn(
-              "h-7 rounded-md px-3 text-xs font-medium transition-all",
-              active
-                ? "bg-[var(--color-duck)] text-[#1a1300] shadow-sm"
-                : "text-fg-muted hover:bg-surface-3 hover:text-fg",
-            )}
+            className="relative h-7 rounded-md px-3 text-xs font-medium transition-colors"
           >
-            {m.label}
+            {active && (
+              <motion.span
+                layoutId="mode-pill-active"
+                className="absolute inset-0 rounded-md bg-[var(--color-duck)] shadow-[0_1px_0_rgba(255,255,255,0.25)_inset]"
+                transition={{ type: "spring", stiffness: 500, damping: 38 }}
+              />
+            )}
+            <span
+              className={
+                active
+                  ? "relative z-10 text-[#1a1300]"
+                  : "text-fg-muted hover:text-fg relative z-10 transition-colors"
+              }
+            >
+              {m.label}
+            </span>
           </button>
         );
       })}
