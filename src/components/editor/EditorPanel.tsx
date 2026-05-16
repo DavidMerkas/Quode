@@ -269,8 +269,12 @@ function ZoomControl({
       <button
         type="button"
         onClick={onReset}
-        title="Reset zoom (⌘0)"
-        aria-label={`Editor zoom, ${size} pixels. Click to reset.`}
+        onWheel={(e) => {
+          if (e.deltaY < 0) onInc();
+          else if (e.deltaY > 0) onDec();
+        }}
+        title="Scroll to zoom · click to reset"
+        aria-label={`Editor zoom, ${size} pixels. Click to reset, scroll to change.`}
         className="text-fg-muted hover:text-fg hover:bg-surface-2 flex h-full min-w-[2.25rem] items-center justify-center px-1 font-mono text-[11px] transition-colors"
       >
         {size}
