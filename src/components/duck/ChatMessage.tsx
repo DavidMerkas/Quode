@@ -1,5 +1,6 @@
 import { DuckMascot } from "@/components/duck/DuckMascot";
 import { DUCK_MODES, type ChatMessage as ChatMsg } from "@/types/duck";
+import { DuckMarkdown } from "@/lib/duck/markdown";
 import { cn } from "@/lib/utils/cn";
 
 interface ChatMessageProps {
@@ -33,14 +34,11 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
             Duck · {modeLabel}
           </div>
         )}
-        <div
-          className={cn(
-            "text-fg text-sm leading-relaxed whitespace-pre-wrap",
-            isStreaming && "text-fg/95",
-          )}
-        >
-          {message.content || (
-            <span className="text-fg-subtle italic">thinking…</span>
+        <div className={cn(isStreaming && "opacity-95")}>
+          {message.content ? (
+            <DuckMarkdown>{message.content}</DuckMarkdown>
+          ) : (
+            <span className="text-fg-subtle text-sm italic">thinking…</span>
           )}
           {isStreaming && message.content && (
             <span className="streaming-caret">&nbsp;</span>

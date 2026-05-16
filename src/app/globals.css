@@ -97,6 +97,20 @@ body {
   animation: duck-speak 0.6s ease-in-out infinite;
 }
 
+/* Shiki code blocks inside Duck markdown */
+.duck-md .shiki {
+  padding: 0.75rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  background: var(--color-surface) !important;
+}
+.duck-md .shiki code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+}
+
 /* Caret pulse for streaming */
 @keyframes caret-pulse {
   0%, 100% { opacity: 1; }
