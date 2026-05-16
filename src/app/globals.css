@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surfaces — dark-first, slightly warm */
+  --color-base: #0b0b0f;
+  --color-surface: #15151b;
+  --color-surface-2: #1c1c24;
+  --color-surface-3: #23232d;
+  --color-border: #2a2a35;
+  --color-border-strong: #3a3a47;
+
+  /* Text */
+  --color-fg: #f4f4f5;
+  --color-fg-muted: #a1a1aa;
+  --color-fg-subtle: #71717a;
+
+  /* Brand */
+  --color-duck: #ffd43b;
+  --color-duck-soft: #ffe580;
+  --color-quack: #ff8c42;
+  --color-quack-soft: #ffb07a;
+
+  /* Semantic */
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warn: #f59e0b;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "JetBrains Mono", monospace;
+
+  /* Radii */
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+html,
+body {
+  background: var(--color-base);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+*::selection {
+  background: var(--color-duck);
+  color: #1a1300;
+}
+
+/* Subtle scrollbars */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+  border: 2px solid var(--color-base);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Focus ring — visible, brand-tinted */
+:focus-visible {
+  outline: 2px solid var(--color-duck);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* Duck idle animation */
+@keyframes duck-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 98% { transform: scaleY(0.05); }
+}
+@keyframes duck-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes duck-speak {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(-2deg); }
+  75% { transform: translateY(-1px) rotate(2deg); }
+}
+
+.duck-idle {
+  animation: duck-bob 4s ease-in-out infinite;
+}
+.duck-eye {
+  transform-origin: center;
+  animation: duck-blink 5s ease-in-out infinite;
+}
+.duck-speaking {
+  animation: duck-speak 0.6s ease-in-out infinite;
+}
+
+/* Caret pulse for streaming */
+@keyframes caret-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.streaming-caret {
+  display: inline-block;
+  width: 0.5ch;
+  background: var(--color-duck);
+  margin-left: 1px;
+  animation: caret-pulse 1s ease-in-out infinite;
+}
