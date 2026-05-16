@@ -4,9 +4,15 @@ import { useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { OnMount, OnChange } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
-import { FileCode2 } from "lucide-react";
+import { FileCode2, Minus, Plus } from "lucide-react";
 import { useTheme } from "@/lib/theme";
+import {
+  MAX_SIZE,
+  MIN_SIZE,
+  useEditorFontSize,
+} from "@/lib/editor-font-size";
 import { getLanguage, type LanguageId } from "@/types/language";
+import { cn } from "@/lib/utils/cn";
 
 const MonacoEditor = dynamic(
   () => import("@monaco-editor/react").then((m) => m.default),
@@ -36,8 +42,10 @@ export function EditorPanel({
 }: EditorPanelProps) {
   const lang = getLanguage(language);
   const { theme } = useTheme();
+  const { size, inc, dec, reset } = useEditorFontSize();
   const onRunRef = useRef(onRun);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   useEffect(() => {
     onRunRef.current = onRun;
   }, [onRun]);
@@ -45,6 +53,7 @@ export function EditorPanel({
   const handleMount: OnMount = useCallback(
     (editor, monaco) => {
       monacoRef.current = monaco;
+      editorRef.current = editor;
 
       monaco.editor.defineTheme("quode-cream", {
         base: "vs",
@@ -120,6 +129,19 @@ export function EditorPanel({
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
         () => onRunRef.current(),
       );
+      // Cmd/Ctrl + Plus / Minus / 0 — zoom controls inside the editor
+      editor.addCommand(
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Equal,
+        () => inc(),
+      );
+      editor.addCommand(
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus,
+        () => dec(),
+      );
+      editor.addCommand(
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Digit0,
+        () => reset(),
+      );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -132,6 +154,13 @@ export function EditorPanel({
     m.editor.setTheme(theme === "dark" ? "quode-dark" : "quode-cream");
   }, [theme]);
 
+  // React to font-size changes.
+  useEffect(() => {
+    const ed = editorRef.current;
+    if (!ed) return;
+    ed.updateOptions({ fontSize: size, lineHeight: Math.round(size * 1.6) });
+  }, [size]);
+
   const handleChange: OnChange = (value) => {
     onChange(value ?? "");
   };
@@ -141,7 +170,7 @@ export function EditorPanel({
 
   return (
     <div className="bg-base flex min-h-0 flex-1 flex-col">
-      <div className="border-border bg-surface/30 flex h-10 shrink-0 items-center justify-between border-b pl-1 pr-3">
+      <div className="border-border bg-surface/30 flex h-10 shrink-0 items-center justify-between border-b pl-1 pr-2">
         {/* file tab */}
         <div className="relative flex h-full items-center gap-2 pl-3 pr-4 text-xs">
           <FileCode2 className="text-fg-muted size-3.5" aria-hidden />
@@ -152,8 +181,16 @@ export function EditorPanel({
           />
         </div>
 
-        <div className="text-fg-subtle flex items-center gap-2 font-mono text-[10px] tracking-wider uppercase">
-          <span>{lang.label}</span>
+        <div className="flex items-center gap-2">
+          <ZoomControl
+            size={size}
+            onInc={inc}
+            onDec={dec}
+            onReset={reset}
+          />
+          <span className="text-fg-subtle font-mono text-[10px] tracking-wider uppercase">
+            {lang.label}
+          </span>
         </div>
       </div>
 
@@ -174,8 +211,6 @@ export function EditorPanel({
 const MONACO_OPTIONS: Monaco.editor.IStandaloneEditorConstructionOptions = {
   fontFamily:
     "var(--font-geist-mono), ui-monospace, 'JetBrains Mono', monospace",
-  fontSize: 14,
-  lineHeight: 22,
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   smoothScrolling: true,
@@ -196,6 +231,68 @@ const MONACO_OPTIONS: Monaco.editor.IStandaloneEditorConstructionOptions = {
   },
   fixedOverflowWidgets: true,
 };
+
+function ZoomControl({
+  size,
+  onInc,
+  onDec,
+  onReset,
+}: {
+  size: number;
+  onInc: () => void;
+  onDec: () => void;
+  onReset: () => void;
+}) {
+  const atMin = size <= MIN_SIZE;
+  const atMax = size >= MAX_SIZE;
+  return (
+    <div
+      role="group"
+      aria-label="Editor zoom"
+      className="border-border bg-surface/60 inline-flex h-7 items-center overflow-hidden rounded-md border text-xs"
+    >
+      <button
+        type="button"
+        onClick={onDec}
+        disabled={atMin}
+        aria-label="Decrease font size"
+        title="Zoom out (⌘−)"
+        className={cn(
+          "flex h-full w-6 items-center justify-center transition-colors",
+          atMin
+            ? "text-fg-subtle cursor-not-allowed"
+            : "text-fg-muted hover:text-fg hover:bg-surface-2",
+        )}
+      >
+        <Minus className="size-3" />
+      </button>
+      <button
+        type="button"
+        onClick={onReset}
+        title="Reset zoom (⌘0)"
+        aria-label={`Editor font size, ${size} pixels. Click to reset.`}
+        className="text-fg-muted hover:text-fg hover:bg-surface-2 flex h-full min-w-[2.5rem] items-center justify-center px-1 font-mono text-[11px] transition-colors"
+      >
+        {size}
+      </button>
+      <button
+        type="button"
+        onClick={onInc}
+        disabled={atMax}
+        aria-label="Increase font size"
+        title="Zoom in (⌘+)"
+        className={cn(
+          "flex h-full w-6 items-center justify-center transition-colors",
+          atMax
+            ? "text-fg-subtle cursor-not-allowed"
+            : "text-fg-muted hover:text-fg hover:bg-surface-2",
+        )}
+      >
+        <Plus className="size-3" />
+      </button>
+    </div>
+  );
+}
 
 function extFor(id: LanguageId): string {
   switch (id) {
