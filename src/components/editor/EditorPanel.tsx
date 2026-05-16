@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import type { OnMount, OnChange } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
+import { FileCode2 } from "lucide-react";
 import { getLanguage, type LanguageId } from "@/types/language";
 
 const MonacoEditor = dynamic(
@@ -11,7 +12,8 @@ const MonacoEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="text-fg-muted flex h-full items-center justify-center text-sm">
+      <div className="text-fg-muted flex h-full items-center justify-center gap-2 text-sm">
+        <span className="border-fg-subtle border-t-fg-muted inline-block size-3 animate-spin rounded-full border-2" />
         Loading editor…
       </div>
     ),
@@ -84,16 +86,23 @@ export function EditorPanel({
   };
 
   const monacoLang = lang.monaco;
+  const ext = extFor(language);
 
   return (
     <div className="bg-base flex min-h-0 flex-1 flex-col">
-      <div className="border-border bg-surface/40 flex h-9 shrink-0 items-center justify-between border-b px-3">
-        <div className="text-fg-muted flex items-center gap-2 text-xs">
-          <span className="size-1.5 rounded-full bg-[var(--color-quack)]" />
-          <span className="font-mono">main.{extFor(language)}</span>
+      <div className="border-border bg-surface/30 flex h-10 shrink-0 items-center justify-between border-b pl-1 pr-3">
+        {/* file tab */}
+        <div className="relative flex h-full items-center gap-2 pl-3 pr-4 text-xs">
+          <FileCode2 className="text-fg-muted size-3.5" aria-hidden />
+          <span className="text-fg font-mono">main.{ext}</span>
+          <span
+            aria-hidden
+            className="absolute inset-x-2 bottom-0 h-px bg-[var(--color-duck)]"
+          />
         </div>
-        <div className="text-fg-subtle font-mono text-[10px] tracking-wide uppercase">
-          {lang.label}
+
+        <div className="text-fg-subtle flex items-center gap-2 font-mono text-[10px] tracking-wider uppercase">
+          <span>{lang.label}</span>
         </div>
       </div>
 
@@ -121,7 +130,7 @@ const MONACO_OPTIONS: Monaco.editor.IStandaloneEditorConstructionOptions = {
   smoothScrolling: true,
   cursorBlinking: "smooth",
   cursorSmoothCaretAnimation: "on",
-  padding: { top: 12, bottom: 12 },
+  padding: { top: 14, bottom: 14 },
   renderLineHighlight: "line",
   roundedSelection: false,
   guides: { indentation: true, bracketPairs: true },
