@@ -29,7 +29,9 @@ function make(name: string, limit: number, window: `${number} ${"s" | "m" | "h" 
 }
 
 const limiters = {
-  duckMinute: make("duck:m", 10, "1 m"),
+  // Gemini free tier is 5 RPM per model — keep ours strictly below that so the
+  // app's limiter triggers first instead of leaking Google's raw 429.
+  duckMinute: make("duck:m", 4, "1 m"),
   duckDay: make("duck:d", 50, "1 d"),
   runMinute: make("run:m", 30, "1 m"),
   runDay: make("run:d", 200, "1 d"),
