@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { runCode } from "@/lib/runner";
+import {
+  checkLimit,
+  clientIp,
+  rateLimitHeaders,
+} from "@/lib/rate-limit";
 import { LANGUAGES, type LanguageId } from "@/types/language";
 
 export const runtime = "nodejs";
@@ -36,17 +41,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Code too large" }, { status: 413 });
   }
 
+  const limit = await checkLimit("run", clientIp(req));
+  if (!limit.ok) {
+    const human =
+      limit.scope === "day"
+        ? "Daily run limit reached. Try again tomorrow."
+        : `Slow down — try again in ${limit.retryAfterSec}s.`;
+    return NextResponse.json(
+      { error: human },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(limit.retryAfterSec),
+          ...rateLimitHeaders(limit),
+        },
+      },
+    );
+  }
+
   const start = Date.now();
   try {
     const result = await runCode(language as LanguageId, code);
-    return NextResponse.json({
-      stdout: result.stdout,
-      stderr: result.compileError
-        ? `${result.compileError}\n${result.stderr}`.trim()
-        : result.stderr,
-      exitCode: result.exitCode,
-      durationMs: Date.now() - start,
-    });
+    return NextResponse.json(
+      {
+        stdout: result.stdout,
+        stderr: result.compileError
+          ? `${result.compileError}\n${result.stderr}`.trim()
+          : result.stderr,
+        exitCode: result.exitCode,
+        durationMs: Date.now() - start,
+      },
+      { headers: rateLimitHeaders(limit) },
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(

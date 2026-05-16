@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --eslint --src-dir --import-alias \"@/*\" --use-npm --no-turbopack --yes)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(kill %1)",
+      "Bash(npm install *)",
+      "Bash(curl -s -m 60 -w \"\\\\n---STATUS: %{http_code} TIME: %{time_total}s---\\\\n\" https://quode.onrender.com/api/v2/runtimes)",
+      "Bash(curl -s -m 120 -w \"\\\\n---STATUS: %{http_code} TIME: %{time_total}s---\\\\n\" https://quode.onrender.com/)",
+      "Bash(curl -sI -m 15 https://quode.onrender.com/)",
+      "Bash(curl -s -m 15 -o /dev/null -w \"Connect: %{time_connect}s, TTFB: %{time_starttransfer}s, HTTP: %{http_code}\\\\n\" https://quode.onrender.com/)",
+      "Bash(taskkill //PID 8348 //F)",
+      "Bash(curl -s -m 30 https://wandbox.org/api/list.json)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -m 30 -X POST https://wandbox.org/api/compile.json -H \"Content-Type: application/json\" -d '{\"code\":\"print\\(\\\\\"Hello, Duck!\\\\\"\\)\",\"compiler\":\"cpython-3.13.8\",\"options\":\"\",\"stdin\":\"\",\"save\":false}')",
+      "Bash(curl -s -m 30 -X POST https://wandbox.org/api/compile.json -H \"Content-Type: application/json\" -d '{\"code\":\"print\\(\\\\\"test\\\\\"\\)\",\"compiler\":\"cpython-3.13.8\",\"options\":\"\",\"stdin\":\"\",\"save\":false}')",
+      "Bash(node *)",
+      "Bash(git -C \"C:\\\\Users\\\\david\\\\desktop\\\\quode\" log --oneline -20)",
+      "Bash(git -C \"C:\\\\Users\\\\david\\\\desktop\\\\quode\" status --short)",
+      "Bash(git -C \"C:\\\\Users\\\\david\\\\desktop\\\\quode\" status)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git *)",
+      "Bash(npm i *)",
+      "Bash(npx eslint *)",
+      "Bash(gh auth *)"
+    ]
+  }
+}

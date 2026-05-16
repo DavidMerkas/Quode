@@ -1,5 +1,10 @@
 import { streamDuckReply } from "@/lib/duck/gemini";
 import { buildSystemPrompt, buildUserTurn } from "@/lib/duck/prompts";
+import {
+  checkLimit,
+  clientIp,
+  rateLimitHeaders,
+} from "@/lib/rate-limit";
 import { DUCK_MODES, type DuckMode } from "@/types/duck";
 import { LANGUAGES, type LanguageId } from "@/types/language";
 
@@ -46,6 +51,22 @@ export async function POST(req: Request) {
     );
   }
 
+  const limit = await checkLimit("duck", clientIp(req));
+  if (!limit.ok) {
+    const human =
+      limit.scope === "day"
+        ? "Daily Duck limit reached. Try again tomorrow."
+        : `Slow down — try again in ${limit.retryAfterSec}s.`;
+    return new Response(JSON.stringify({ error: human }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(limit.retryAfterSec),
+        ...rateLimitHeaders(limit),
+      },
+    });
+  }
+
   const systemPrompt = buildSystemPrompt(mode as DuckMode);
   const userMessage = buildUserTurn({
     message,
@@ -78,6 +99,7 @@ export async function POST(req: Request) {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-store",
       "X-Accel-Buffering": "no",
+      ...rateLimitHeaders(limit),
     },
   });
 }
