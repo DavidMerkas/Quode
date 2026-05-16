@@ -4,8 +4,10 @@ import { useMemo, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createHighlighter, type Highlighter } from "shiki";
+import { useTheme } from "@/lib/theme";
 
-const THEME = "solarized-light";
+const LIGHT_THEME = "solarized-light";
+const DARK_THEME = "github-dark-default";
 const LANGS = [
   "python",
   "javascript",
@@ -34,7 +36,10 @@ let loading: Promise<void> | null = null;
 function ensureHighlighter(onReady: () => void): Highlighter | null {
   if (highlighter) return highlighter;
   if (!loading) {
-    loading = createHighlighter({ themes: [THEME], langs: LANGS }).then((h) => {
+    loading = createHighlighter({
+      themes: [LIGHT_THEME, DARK_THEME],
+      langs: LANGS,
+    }).then((h) => {
       highlighter = h;
     });
   }
@@ -42,7 +47,15 @@ function ensureHighlighter(onReady: () => void): Highlighter | null {
   return null;
 }
 
-function CodeBlock({ language, code }: { language: string; code: string }) {
+function CodeBlock({
+  language,
+  code,
+  themeName,
+}: {
+  language: string;
+  code: string;
+  themeName: string;
+}) {
   const [, force] = useState(0);
   const h = ensureHighlighter(() => force((n) => n + 1));
 
@@ -51,11 +64,11 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
     const loaded = h.getLoadedLanguages() as string[];
     const lang = loaded.includes(language) ? language : "text";
     try {
-      return h.codeToHtml(code, { lang, theme: THEME });
+      return h.codeToHtml(code, { lang, theme: themeName });
     } catch {
       return null;
     }
-  }, [h, language, code]);
+  }, [h, language, code, themeName]);
 
   if (html) {
     return (
@@ -72,24 +85,31 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
   );
 }
 
-const components: Components = {
-  code({ className, children, ...props }) {
-    const match = /language-([\w-]+)/.exec(className || "");
-    const text = String(children).replace(/\n$/, "");
-    const isBlock = !!match || text.includes("\n");
+function makeComponents(themeName: string): Components {
+  return {
+    code({ className, children, ...props }) {
+      const match = /language-([\w-]+)/.exec(className || "");
+      const text = String(children).replace(/\n$/, "");
+      const isBlock = !!match || text.includes("\n");
 
-    if (!isBlock) {
+      if (!isBlock) {
+        return (
+          <code
+            className="bg-surface-2 text-fg rounded px-1 py-0.5 font-mono text-[0.9em]"
+            {...props}
+          >
+            {children}
+          </code>
+        );
+      }
       return (
-        <code
-          className="bg-surface-2 text-fg rounded px-1 py-0.5 font-mono text-[0.9em]"
-          {...props}
-        >
-          {children}
-        </code>
+        <CodeBlock
+          language={match?.[1] ?? "text"}
+          code={text}
+          themeName={themeName}
+        />
       );
-    }
-    return <CodeBlock language={match?.[1] ?? "text"} code={text} />;
-  },
+    },
   pre({ children }) {
     return <>{children}</>;
   },
@@ -151,16 +171,21 @@ const components: Components = {
       </th>
     );
   },
-  td({ children }) {
-    return (
-      <td className="border border-[var(--color-border)] px-2 py-1 align-top">
-        {children}
-      </td>
-    );
-  },
-};
+    td({ children }) {
+      return (
+        <td className="border border-[var(--color-border)] px-2 py-1 align-top">
+          {children}
+        </td>
+      );
+    },
+  };
+}
 
 export function DuckMarkdown({ children }: { children: string }) {
+  const { theme } = useTheme();
+  const themeName = theme === "dark" ? DARK_THEME : LIGHT_THEME;
+  const components = useMemo(() => makeComponents(themeName), [themeName]);
+
   return (
     <div className="duck-md text-fg text-sm leading-relaxed">
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>

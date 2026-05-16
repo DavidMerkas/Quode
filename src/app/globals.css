@@ -58,6 +58,49 @@ body::before {
     radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.12), transparent 60%);
 }
 
+/* ---------- Dark theme override ---------- */
+/* @theme only declares one set of tokens. To support a class-based dark
+   theme we override the same CSS variables when .dark is on <html>. */
+html.dark {
+  --color-base: #0b0b0f;
+  --color-surface: #15151b;
+  --color-surface-2: #1c1c24;
+  --color-surface-3: #23232d;
+  --color-border: #2a2a35;
+  --color-border-strong: #3a3a47;
+
+  --color-fg: #f4f4f5;
+  --color-fg-muted: #a1a1aa;
+  --color-fg-subtle: #71717a;
+
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warn: #f59e0b;
+}
+
+html.dark body::before {
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(255, 212, 59, 0.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.04), transparent 60%);
+}
+
+html.dark *::selection {
+  background: var(--color-duck);
+  color: #1a1300;
+}
+
+html.dark :focus-visible {
+  outline-color: var(--color-duck);
+}
+
+html.dark .streaming-caret {
+  background: var(--color-duck);
+}
+
+html.dark .duck-md .shiki {
+  background: var(--color-surface) !important;
+}
+
 *::selection {
   background: var(--color-quack);
   color: #1a0d00;

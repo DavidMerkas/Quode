@@ -18,6 +18,10 @@ export const metadata: Metadata = {
     "A web-based coding playground with an AI duck mentor. Write code, run it, and learn with Duck.",
 };
 
+// Inline pre-hydration script: set the `dark` class before paint so we
+// never flash the wrong theme. Reads localStorage, falls back to OS pref.
+const THEME_INIT = `(function(){try{var s=localStorage.getItem('quode-theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +32,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body className="bg-base text-fg h-full min-h-screen">{children}</body>
     </html>
   );

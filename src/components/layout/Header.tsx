@@ -2,6 +2,7 @@
 
 import { ChevronDown, Loader2, Play } from "lucide-react";
 import { motion } from "motion/react";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LANGUAGES, type LanguageId } from "@/types/language";
 import { cn } from "@/lib/utils/cn";
 
@@ -67,8 +68,10 @@ export function Header({
         </motion.button>
       </div>
 
-      {/* Right: reserved for future actions */}
-      <div className="flex items-center justify-end" />
+      {/* Right: theme toggle */}
+      <div className="flex items-center justify-end">
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
