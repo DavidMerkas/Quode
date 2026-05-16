@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces — dark-first, slightly warm */
-  --color-base: #0b0b0f;
-  --color-surface: #15151b;
-  --color-surface-2: #1c1c24;
-  --color-surface-3: #23232d;
-  --color-border: #2a2a35;
-  --color-border-strong: #3a3a47;
+  /* Surfaces — warm cream-yellow, light-first */
+  --color-base: #fbf6e3;
+  --color-surface: #fdf8ea;
+  --color-surface-2: #f6ecc8;
+  --color-surface-3: #eddfa1;
+  --color-border: #e0c87c;
+  --color-border-strong: #c9a943;
 
   /* Text */
-  --color-fg: #f4f4f5;
-  --color-fg-muted: #a1a1aa;
-  --color-fg-subtle: #71717a;
+  --color-fg: #2b1f02;
+  --color-fg-muted: #5e4b15;
+  --color-fg-subtle: #8a763b;
 
   /* Brand */
   --color-duck: #ffd43b;
@@ -21,9 +21,9 @@
   --color-quack-soft: #ffb07a;
 
   /* Semantic */
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
-  --color-warn: #f59e0b;
+  --color-danger: #c0392b;
+  --color-success: #2f8f3a;
+  --color-warn: #b8860b;
 
   /* Fonts */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -46,7 +46,7 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* Subtle warm ambient — barely perceptible, gives the dark base depth */
+/* Warm ambient on top of the cream — a bit of sun */
 body::before {
   content: "";
   position: fixed;
@@ -54,13 +54,13 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(255, 212, 59, 0.05), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.04), transparent 60%);
+    radial-gradient(1200px 600px at 85% -10%, rgba(255, 200, 60, 0.25), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.12), transparent 60%);
 }
 
 *::selection {
-  background: var(--color-duck);
-  color: #1a1300;
+  background: var(--color-quack);
+  color: #1a0d00;
 }
 
 /* Subtle scrollbars */
@@ -83,12 +83,12 @@ body::before {
   border: 2px solid transparent;
 }
 
-/* Focus ring — visible, brand-tinted, only on keyboard */
+/* Focus ring — visible against cream, brand-tinted */
 :focus {
   outline: none;
 }
 :focus-visible {
-  outline: 2px solid var(--color-duck);
+  outline: 2px solid var(--color-quack);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
@@ -104,13 +104,13 @@ body::before {
   }
 }
 
-/* Shiki code blocks inside Duck markdown */
+/* Shiki code blocks inside Duck markdown — light cream */
 .duck-md .shiki {
   padding: 0.75rem 0.9rem;
   font-family: var(--font-mono);
   font-size: 12.5px;
   line-height: 1.55;
-  background: var(--color-surface) !important;
+  background: #fffbe6 !important;
 }
 .duck-md .shiki code {
   background: transparent;
@@ -133,7 +133,7 @@ body::before {
   width: 0.5ch;
   height: 1em;
   vertical-align: text-bottom;
-  background: var(--color-duck);
+  background: var(--color-quack);
   margin-left: 1px;
   border-radius: 1px;
   animation: caret-pulse 1s ease-in-out infinite;

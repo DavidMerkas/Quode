@@ -5,7 +5,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createHighlighter, type Highlighter } from "shiki";
 
-const THEME = "github-dark-default";
+const THEME = "solarized-light";
 const LANGS = [
   "python",
   "javascript",

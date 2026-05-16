@@ -40,40 +40,40 @@ export function EditorPanel({
   }, [onRun]);
 
   const handleMount: OnMount = useCallback((editor, monaco) => {
-    monaco.editor.defineTheme("quode-dark", {
-      base: "vs-dark",
+    monaco.editor.defineTheme("quode-cream", {
+      base: "vs",
       inherit: true,
       rules: [
-        { token: "comment", foreground: "71717a", fontStyle: "italic" },
-        { token: "keyword", foreground: "ffd43b" },
-        { token: "string", foreground: "ffb07a" },
-        { token: "number", foreground: "f5c400" },
-        { token: "type", foreground: "ffe580" },
-        { token: "function", foreground: "ff8c42" },
+        { token: "comment", foreground: "98763b", fontStyle: "italic" },
+        { token: "keyword", foreground: "b85c00" },
+        { token: "string", foreground: "6d4c1c" },
+        { token: "number", foreground: "9a4d00" },
+        { token: "type", foreground: "905c00" },
+        { token: "function", foreground: "c95a1a" },
       ],
       colors: {
-        "editor.background": "#0b0b0f",
-        "editor.foreground": "#f4f4f5",
-        "editorLineNumber.foreground": "#52525b",
-        "editorLineNumber.activeForeground": "#a1a1aa",
-        "editor.selectionBackground": "#ffd43b33",
-        "editor.lineHighlightBackground": "#15151b",
-        "editor.lineHighlightBorder": "#15151b",
-        "editorCursor.foreground": "#ffd43b",
-        "editorIndentGuide.background1": "#1c1c24",
-        "editorIndentGuide.activeBackground1": "#2a2a35",
-        "editorWidget.background": "#15151b",
-        "editorWidget.border": "#2a2a35",
-        "editorSuggestWidget.background": "#15151b",
-        "editorSuggestWidget.border": "#2a2a35",
-        "editorSuggestWidget.selectedBackground": "#23232d",
+        "editor.background": "#fffbe6",
+        "editor.foreground": "#2b1f02",
+        "editorLineNumber.foreground": "#c9aa44",
+        "editorLineNumber.activeForeground": "#5e4b15",
+        "editor.selectionBackground": "#ffd43b80",
+        "editor.lineHighlightBackground": "#fff5cc",
+        "editor.lineHighlightBorder": "#fff5cc",
+        "editorCursor.foreground": "#ff8c42",
+        "editorIndentGuide.background1": "#f0e0a8",
+        "editorIndentGuide.activeBackground1": "#e0c87c",
+        "editorWidget.background": "#fdf8ea",
+        "editorWidget.border": "#e0c87c",
+        "editorSuggestWidget.background": "#fdf8ea",
+        "editorSuggestWidget.border": "#e0c87c",
+        "editorSuggestWidget.selectedBackground": "#f6ecc8",
         "scrollbar.shadow": "#00000000",
-        "scrollbarSlider.background": "#2a2a3580",
-        "scrollbarSlider.hoverBackground": "#3a3a47cc",
-        "scrollbarSlider.activeBackground": "#3a3a47",
+        "scrollbarSlider.background": "#c9a94340",
+        "scrollbarSlider.hoverBackground": "#c9a94380",
+        "scrollbarSlider.activeBackground": "#c9a943",
       },
     });
-    monaco.editor.setTheme("quode-dark");
+    monaco.editor.setTheme("quode-cream");
 
     editor.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
@@ -110,7 +110,7 @@ export function EditorPanel({
         <MonacoEditor
           value={code}
           language={monacoLang}
-          theme="quode-dark"
+          theme="quode-cream"
           onChange={handleChange}
           onMount={handleMount}
           options={MONACO_OPTIONS}

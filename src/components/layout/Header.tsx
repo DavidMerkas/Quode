@@ -20,12 +20,10 @@ export function Header({
   isRunning,
 }: HeaderProps) {
   return (
-    <header className="border-border/70 bg-base/85 supports-[backdrop-filter]:bg-base/60 sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between gap-4 border-b px-4 backdrop-blur-md">
+    <header className="border-border/70 bg-base/85 supports-[backdrop-filter]:bg-base/60 sticky top-0 z-20 grid h-14 shrink-0 grid-cols-3 items-center gap-4 border-b px-4 backdrop-blur-md">
+      {/* Left: brand */}
       <div className="flex items-center gap-2.5">
-        <div className="relative">
-          <DuckMascot size={30} />
-          <span className="absolute -right-0.5 -bottom-0.5 size-1.5 rounded-full bg-[var(--color-duck)] shadow-[0_0_8px_var(--color-duck)]" />
-        </div>
+        <DuckMascot size={30} />
         <div className="flex items-baseline gap-2">
           <span className="text-fg text-[15px] font-semibold tracking-tight">
             Quode
@@ -36,7 +34,8 @@ export function Header({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Center: controls */}
+      <div className="flex items-center justify-center gap-2">
         <LanguageSelect value={language} onChange={onLanguageChange} />
 
         <motion.button
@@ -48,7 +47,7 @@ export function Header({
           className={cn(
             "group relative inline-flex h-8 items-center gap-1.5 overflow-hidden rounded-md px-3 text-sm font-medium",
             "bg-[var(--color-quack)] text-[#1a0d00]",
-            "shadow-[0_1px_0_rgba(255,255,255,0.15)_inset,0_2px_8px_-2px_rgba(255,140,66,0.5)]",
+            "shadow-[0_1px_0_rgba(255,255,255,0.25)_inset,0_4px_14px_-4px_rgba(255,140,66,0.55)]",
             "hover:brightness-105 active:brightness-95",
             "disabled:cursor-not-allowed disabled:opacity-60",
             "transition-[filter,box-shadow] duration-150",
@@ -71,6 +70,9 @@ export function Header({
           )}
         </motion.button>
       </div>
+
+      {/* Right: reserved for future actions */}
+      <div className="flex items-center justify-end" />
     </header>
   );
 }
@@ -92,8 +94,8 @@ function LanguageSelect({
         value={value}
         onChange={(e) => onChange(e.target.value as LanguageId)}
         className={cn(
-          "bg-surface-2/80 border-border text-fg",
-          "hover:border-border-strong hover:bg-surface-3/80",
+          "bg-surface/80 border-border text-fg",
+          "hover:border-border-strong hover:bg-surface",
           "h-8 cursor-pointer appearance-none rounded-md border pr-7 pl-3 text-sm",
           "transition-colors focus:outline-none",
         )}
