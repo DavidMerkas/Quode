@@ -1,56 +1,80 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export type Theme = "light" | "dark";
 
 const KEY = "quode-theme";
 
-function readInitial(): Theme {
-  if (typeof window === "undefined") return "light";
+// Module-level store shared across all useTheme() callers so a single toggle
+// re-renders every consumer (Header, EditorPanel, DuckMarkdown, ...).
+let current: Theme = "light";
+const listeners = new Set<() => void>();
+
+function readStored(): Theme | null {
   try {
-    const stored = window.localStorage.getItem(KEY);
-    if (stored === "light" || stored === "dark") return stored;
+    const s = window.localStorage.getItem(KEY);
+    if (s === "light" || s === "dark") return s;
   } catch {
     /* ignore */
   }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return null;
+}
+
+function applyToDom(t: Theme) {
+  document.documentElement.classList.toggle("dark", t === "dark");
+}
+
+function setTheme(t: Theme) {
+  if (t === current) return;
+  current = t;
+  applyToDom(t);
+  try {
+    window.localStorage.setItem(KEY, t);
+  } catch {
+    /* ignore */
+  }
+  listeners.forEach((l) => l());
+}
+
+function subscribe(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+}
+
+function getSnapshot(): Theme {
+  return current;
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
+// Initialize on the client at module load — runs before any hook is called.
+if (typeof window !== "undefined") {
+  const stored = readStored();
+  current = stored
+    ? stored
+    : window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  applyToDom(current);
+
+  // Follow OS pref if the user hasn't picked.
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", (e) => {
+      if (readStored()) return;
+      setTheme(e.matches ? "dark" : "light");
+    });
 }
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(readInitial);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle("dark", theme === "dark");
-    try {
-      window.localStorage.setItem(KEY, theme);
-    } catch {
-      /* ignore */
-    }
-  }, [theme]);
-
-  // React to OS-level changes if the user hasn't explicitly chosen.
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (e: MediaQueryListEvent) => {
-      try {
-        if (window.localStorage.getItem(KEY)) return;
-      } catch {
-        /* ignore */
-      }
-      setThemeState(e.matches ? "dark" : "light");
-    };
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const toggle = useCallback(() => {
+    setTheme(current === "light" ? "dark" : "light");
   }, []);
-
-  const toggle = useCallback(
-    () => setThemeState((t) => (t === "light" ? "dark" : "light")),
-    [],
-  );
-
-  return { theme, setTheme: setThemeState, toggle };
+  return { theme, setTheme, toggle };
 }

@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces — saturated honey-cream around the editor "paper" */
-  --color-base: #f7e29a;          /* page background (more yellow) */
-  --color-surface: #fbe9aa;       /* headers, drawer top, panel chrome */
-  --color-surface-2: #f3d97e;     /* inputs, raised surfaces, user bubble */
-  --color-surface-3: #e7c65a;     /* hover/active raised */
-  --color-border: #c7a13a;
-  --color-border-strong: #9d7d20;
+  /* Surfaces — soft warm cream around the editor "paper" */
+  --color-base: #fdf3c4;          /* page background (gentle warm cream) */
+  --color-surface: #fef7d4;       /* headers, drawer top, panel chrome */
+  --color-surface-2: #f9e9a8;     /* inputs, raised surfaces, user bubble */
+  --color-surface-3: #f0d97e;     /* hover/active raised */
+  --color-border: #d9be65;
+  --color-border-strong: #b5973d;
 
-  /* Text — deep warm brown, high contrast on yellow */
-  --color-fg: #261a02;
-  --color-fg-muted: #5a4510;
-  --color-fg-subtle: #856c28;
+  /* Text — warm brown */
+  --color-fg: #2b1f02;
+  --color-fg-muted: #6b541a;
+  --color-fg-subtle: #957c34;
 
   /* Brand */
   --color-duck: #ffd43b;
@@ -54,8 +54,8 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(255, 200, 60, 0.25), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.12), transparent 60%);
+    radial-gradient(1200px 600px at 85% -10%, rgba(255, 200, 60, 0.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.08), transparent 60%);
 }
 
 /* ---------- Dark theme override ---------- */
