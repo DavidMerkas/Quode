@@ -40,6 +40,22 @@ body {
   background: var(--color-base);
   color: var(--color-fg);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Subtle warm ambient — barely perceptible, gives the dark base depth */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(255, 212, 59, 0.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.04), transparent 60%);
 }
 
 *::selection {
@@ -58,43 +74,34 @@ body {
 *::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 999px;
-  border: 2px solid var(--color-base);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 *::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-strong);
+  background-clip: padding-box;
+  border: 2px solid transparent;
 }
 
-/* Focus ring — visible, brand-tinted */
+/* Focus ring — visible, brand-tinted, only on keyboard */
+:focus {
+  outline: none;
+}
 :focus-visible {
   outline: 2px solid var(--color-duck);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 
-/* Duck idle animation */
-@keyframes duck-blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  94%, 98% { transform: scaleY(0.05); }
-}
-@keyframes duck-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
-}
-@keyframes duck-speak {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-3px) rotate(-2deg); }
-  75% { transform: translateY(-1px) rotate(2deg); }
-}
-
-.duck-idle {
-  animation: duck-bob 4s ease-in-out infinite;
-}
-.duck-eye {
-  transform-origin: center;
-  animation: duck-blink 5s ease-in-out infinite;
-}
-.duck-speaking {
-  animation: duck-speak 0.6s ease-in-out infinite;
+/* Reduced motion: respect the OS pref */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Shiki code blocks inside Duck markdown */
@@ -113,13 +120,21 @@ body {
 
 /* Caret pulse for streaming */
 @keyframes caret-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 .streaming-caret {
   display: inline-block;
   width: 0.5ch;
+  height: 1em;
+  vertical-align: text-bottom;
   background: var(--color-duck);
   margin-left: 1px;
+  border-radius: 1px;
   animation: caret-pulse 1s ease-in-out infinite;
 }
