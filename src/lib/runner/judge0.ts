@@ -26,6 +26,7 @@ const LANGUAGE_IDS: Record<LanguageId, number> = {
 export async function runCode(
   language: LanguageId,
   code: string,
+  stdin = "",
 ): Promise<RunResult> {
   const apiKey = process.env.RAPIDAPI_KEY;
   if (!apiKey) {
@@ -44,6 +45,7 @@ export async function runCode(
       body: JSON.stringify({
         source_code: code,
         language_id: LANGUAGE_IDS[language],
+        stdin,
       }),
     },
   );

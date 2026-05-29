@@ -22,14 +22,15 @@ export type { RunResult } from "./types";
 export async function runCode(
   language: LanguageId,
   code: string,
+  stdin = "",
 ): Promise<RunResult> {
   if (process.env.PISTON_URL) {
-    return runCodePiston(language, code);
+    return runCodePiston(language, code, stdin);
   }
   if (process.env.RAPIDAPI_KEY) {
-    return runCodeJudge0(language, code);
+    return runCodeJudge0(language, code, stdin);
   }
-  return runCodeWandbox(language, code);
+  return runCodeWandbox(language, code, stdin);
 }
 
 export function getRunnerName(): "piston" | "judge0" | "wandbox" {

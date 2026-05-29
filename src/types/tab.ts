@@ -5,6 +5,7 @@ export interface EditorTab {
   name: string;
   language: LanguageId;
   code: string;
+  stdin: string;
 }
 
 const EXTS: Record<LanguageId, string> = {
@@ -50,5 +51,6 @@ export function newTab(
     name: newTabName(language, existing),
     language: lang.id,
     code: lang.starter,
+    stdin: "",
   };
 }

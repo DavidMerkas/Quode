@@ -80,6 +80,7 @@ function preprocess(language: LanguageId, code: string): string {
 export async function runCode(
   language: LanguageId,
   code: string,
+  stdin = "",
 ): Promise<RunResult> {
   const cfg = COMPILERS[language];
   code = preprocess(language, code);
@@ -94,7 +95,7 @@ export async function runCode(
         code,
         compiler: cfg.compiler,
         options: cfg.options ?? "",
-        stdin: "",
+        stdin,
         save: false,
       }),
     });

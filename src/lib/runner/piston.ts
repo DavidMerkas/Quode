@@ -29,6 +29,7 @@ const PISTON_LANGS: Record<
 export async function runCode(
   language: LanguageId,
   code: string,
+  stdin = "",
 ): Promise<RunResult> {
   const url = process.env.PISTON_URL;
   if (!url) {
@@ -43,7 +44,7 @@ export async function runCode(
       language: cfg.language,
       version: cfg.version,
       files: [{ name: cfg.filename, content: code }],
-      stdin: "",
+      stdin,
       compile_timeout: 10000,
       run_timeout: 5000,
     }),

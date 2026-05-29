@@ -11,6 +11,7 @@ export const runtime = "nodejs";
 
 const VALID_LANGS = new Set<LanguageId>(LANGUAGES.map((l) => l.id));
 const MAX_CODE_BYTES = 100_000;
+const MAX_STDIN_BYTES = 10_000;
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -20,9 +21,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { language, code } = (body ?? {}) as {
+  const { language, code, stdin } = (body ?? {}) as {
     language?: string;
     code?: string;
+    stdin?: string;
   };
 
   if (typeof code !== "string" || typeof language !== "string") {
@@ -39,6 +41,10 @@ export async function POST(req: Request) {
   }
   if (code.length > MAX_CODE_BYTES) {
     return NextResponse.json({ error: "Code too large" }, { status: 413 });
+  }
+  const stdinText = typeof stdin === "string" ? stdin : "";
+  if (stdinText.length > MAX_STDIN_BYTES) {
+    return NextResponse.json({ error: "Input too large" }, { status: 413 });
   }
 
   const limit = await checkLimit("run", clientIp(req));
@@ -61,7 +67,7 @@ export async function POST(req: Request) {
 
   const start = Date.now();
   try {
-    const result = await runCode(language as LanguageId, code);
+    const result = await runCode(language as LanguageId, code, stdinText);
     return NextResponse.json(
       {
         stdout: result.stdout,
