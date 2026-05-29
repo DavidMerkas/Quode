@@ -7,8 +7,12 @@ import { TabStrip } from "@/components/editor/TabStrip";
 import { ZoomControl } from "@/components/editor/ZoomControl";
 import { OutputDrawer, type RunResult } from "@/components/editor/OutputDrawer";
 import { DuckPanel } from "@/components/duck/DuckPanel";
-import { DEFAULT_LANGUAGE, type LanguageId } from "@/types/language";
-import { newTab, type EditorTab } from "@/types/tab";
+import {
+  DEFAULT_LANGUAGE,
+  getLanguage,
+  type LanguageId,
+} from "@/types/language";
+import { extFor, newTab, type EditorTab } from "@/types/tab";
 import type { DuckMode } from "@/types/duck";
 
 export function Workspace() {
@@ -25,13 +29,16 @@ export function Workspace() {
     [tabs, activeId],
   );
 
-  const handleNewTab = useCallback((lang: LanguageId) => {
-    setTabs((cur) => {
-      const t = newTab(lang, cur);
+  const handleNewTab = useCallback(
+    (lang: LanguageId) => {
+      const t = newTab(lang, tabs);
+      setTabs((cur) => [...cur, t]);
       setActiveId(t.id);
-      return [...cur, t];
-    });
-  }, []);
+      setOutput(null);
+      setOutputOpen(false);
+    },
+    [tabs],
+  );
 
   const handleCloseTab = useCallback(
     (id: string) => {
@@ -49,6 +56,48 @@ export function Workspace() {
     [activeId],
   );
 
+  const handleLanguageChange = useCallback(
+    (next: LanguageId) => {
+      setTabs((cur) =>
+        cur.map((t) => {
+          if (t.id !== activeId) return t;
+          if (t.language === next) return t;
+          const lang = getLanguage(next);
+          const dot = t.name.lastIndexOf(".");
+          const base = dot > 0 ? t.name.slice(0, dot) : t.name;
+          const taken = new Set(
+            cur.filter((x) => x.id !== t.id).map((x) => x.name),
+          );
+          let candidate = `${base}.${extFor(next)}`;
+          if (taken.has(candidate)) {
+            for (let i = 2; i < 1000; i++) {
+              const c = `${base}(${i}).${extFor(next)}`;
+              if (!taken.has(c)) {
+                candidate = c;
+                break;
+              }
+            }
+          }
+          return {
+            ...t,
+            language: next,
+            name: candidate,
+            code: lang.starter,
+          };
+        }),
+      );
+      setOutput(null);
+      setOutputOpen(false);
+    },
+    [activeId],
+  );
+
+  const handleRenameTab = useCallback((id: string, name: string) => {
+    setTabs((cur) =>
+      cur.map((t) => (t.id === id ? { ...t, name } : t)),
+    );
+  }, []);
+
   const handleActivate = useCallback((id: string) => {
     setActiveId(id);
     setOutput(null);
@@ -59,6 +108,15 @@ export function Workspace() {
     (code: string) => {
       setTabs((cur) =>
         cur.map((t) => (t.id === activeId ? { ...t, code } : t)),
+      );
+    },
+    [activeId],
+  );
+
+  const handleStdinChange = useCallback(
+    (stdin: string) => {
+      setTabs((cur) =>
+        cur.map((t) => (t.id === activeId ? { ...t, stdin } : t)),
       );
     },
     [activeId],
@@ -77,6 +135,7 @@ export function Workspace() {
         body: JSON.stringify({
           language: activeTab.language,
           code: activeTab.code,
+          stdin: activeTab.stdin,
         }),
       });
       const data = (await res.json()) as
@@ -164,7 +223,14 @@ export function Workspace() {
 
   return (
     <div className="bg-base text-fg flex h-screen min-h-0 flex-col">
-      <Header onRun={handleRun} isRunning={isRunning} />
+      <Header
+        onRun={handleRun}
+        isRunning={isRunning}
+        language={activeTab.language}
+        onLanguageChange={handleLanguageChange}
+        onToggleInput={() => setOutputOpen((v) => !v)}
+        hasInput={activeTab.stdin.length > 0}
+      />
 
       <div className="flex min-h-0 flex-1">
         <main className="flex min-w-0 flex-1 flex-col">
@@ -174,6 +240,7 @@ export function Workspace() {
             onActivate={handleActivate}
             onClose={handleCloseTab}
             onNew={handleNewTab}
+            onRename={handleRenameTab}
             rightSlot={<ZoomControl />}
           />
           <EditorPanel
@@ -185,6 +252,8 @@ export function Workspace() {
             open={outputOpen}
             result={output}
             isRunning={isRunning}
+            stdin={activeTab.stdin}
+            onStdinChange={handleStdinChange}
             onClose={() => setOutputOpen(false)}
           />
         </main>

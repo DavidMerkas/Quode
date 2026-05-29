@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
-import { Check, Clock, Terminal, X, XCircle } from "lucide-react";
+import { Check, ChevronDown, Clock, Terminal, X, XCircle } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
 export interface RunResult {
@@ -15,6 +16,8 @@ interface OutputDrawerProps {
   open: boolean;
   result: RunResult | null;
   isRunning: boolean;
+  stdin: string;
+  onStdinChange: (next: string) => void;
   onClose: () => void;
 }
 
@@ -22,6 +25,8 @@ export function OutputDrawer({
   open,
   result,
   isRunning,
+  stdin,
+  onStdinChange,
   onClose,
 }: OutputDrawerProps) {
   return (
@@ -39,17 +44,17 @@ export function OutputDrawer({
           }}
           className="border-border bg-surface/60 shrink-0 overflow-hidden border-t backdrop-blur-sm"
         >
-          <div className="flex max-h-72 min-h-0 flex-col">
+          <div className="flex max-h-96 min-h-0 flex-col">
             <DrawerHeader
               isRunning={isRunning}
               result={result}
               onClose={onClose}
             />
 
+            <StdinSection value={stdin} onChange={onStdinChange} />
+
             <div className="min-h-0 flex-1 overflow-auto px-4 py-3 font-mono text-[12.5px] leading-[1.55]">
-              {!result && !isRunning && (
-                <EmptyHint />
-              )}
+              {!result && !isRunning && <EmptyHint />}
               {isRunning && <RunningHint />}
               {result && <ResultBody result={result} />}
             </div>
@@ -57,6 +62,67 @@ export function OutputDrawer({
         </motion.section>
       )}
     </AnimatePresence>
+  );
+}
+
+function StdinSection({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const lines = value ? value.split("\n").length : 0;
+  return (
+    <div className="border-border/60 shrink-0 border-b">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="text-fg-muted hover:text-fg flex w-full items-center justify-between px-3 py-1.5 text-[11px] transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <ChevronDown
+            className={cn(
+              "size-3 transition-transform",
+              !expanded && "-rotate-90",
+            )}
+          />
+          <span className="font-semibold">Input</span>
+          <span className="text-fg-subtle font-mono text-[10px] normal-case">
+            stdin
+          </span>
+        </span>
+        <span className="text-fg-subtle font-mono text-[10px]">
+          {lines === 0
+            ? "empty"
+            : `${lines} line${lines === 1 ? "" : "s"}`}
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="overflow-hidden"
+          >
+            <textarea
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="Type input here — one value per line. Programs read it as stdin (input(), Scanner, std::cin, …)."
+              spellCheck={false}
+              rows={3}
+              className={cn(
+                "text-fg placeholder:text-fg-subtle block w-full resize-y bg-transparent px-4 pb-2 font-mono text-[12.5px] leading-[1.55] outline-none",
+                "min-h-[3.5rem]",
+              )}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

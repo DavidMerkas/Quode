@@ -13,6 +13,7 @@ interface TabStripProps {
   onActivate: (id: string) => void;
   onClose: (id: string) => void;
   onNew: (language: LanguageId) => void;
+  onRename: (id: string, name: string) => void;
   rightSlot?: React.ReactNode;
 }
 
@@ -22,23 +23,31 @@ export function TabStrip({
   onActivate,
   onClose,
   onNew,
+  onRename,
   rightSlot,
 }: TabStripProps) {
   return (
     <div className="border-border bg-surface/30 flex h-10 shrink-0 items-center border-b pl-1 pr-2">
-      <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto">
-        {tabs.map((tab) => (
-          <Tab
-            key={tab.id}
-            tab={tab}
-            active={tab.id === activeId}
-            canClose={tabs.length > 1}
-            onActivate={() => onActivate(tab.id)}
-            onClose={() => onClose(tab.id)}
-          />
-        ))}
+      <div className="flex min-w-0 items-center gap-0.5">
+        <div className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tabs.map((tab) => (
+            <Tab
+              key={tab.id}
+              tab={tab}
+              active={tab.id === activeId}
+              canClose={tabs.length > 1}
+              onActivate={() => onActivate(tab.id)}
+              onClose={() => onClose(tab.id)}
+              onRename={(name) => onRename(tab.id, name)}
+              existingNames={tabs
+                .filter((t) => t.id !== tab.id)
+                .map((t) => t.name)}
+            />
+          ))}
+        </div>
         <NewTabButton onPick={onNew} />
       </div>
+      <div className="flex-1" />
       {rightSlot && (
         <div className="ml-2 flex shrink-0 items-center">{rightSlot}</div>
       )}
@@ -52,31 +61,70 @@ function Tab({
   canClose,
   onActivate,
   onClose,
+  onRename,
+  existingNames,
 }: {
   tab: EditorTab;
   active: boolean;
   canClose: boolean;
   onActivate: () => void;
   onClose: () => void;
+  onRename: (name: string) => void;
+  existingNames: readonly string[];
 }) {
+  const dotIdx = tab.name.lastIndexOf(".");
+  const base = dotIdx > 0 ? tab.name.slice(0, dotIdx) : tab.name;
+  const ext = dotIdx > 0 ? tab.name.slice(dotIdx) : "";
+
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(base);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!editing) return;
+    setDraft(base);
+    const id = requestAnimationFrame(() => {
+      const el = inputRef.current;
+      if (!el) return;
+      el.focus();
+      el.select();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [editing, base]);
+
+  const commit = () => {
+    const trimmed = draft.trim().replace(/[\\/]+/g, "");
+    const next = `${trimmed}${ext}`;
+    if (!trimmed || next === tab.name || existingNames.includes(next)) {
+      setEditing(false);
+      return;
+    }
+    onRename(next);
+    setEditing(false);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onActivate}
+    <div
+      role="tab"
+      aria-selected={active}
+      onClick={() => {
+        if (!editing) onActivate();
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        if (!active) onActivate();
+        setEditing(true);
+      }}
       onMouseDown={(e) => {
         // middle-click closes
-        if (e.button === 1 && canClose) {
+        if (e.button === 1 && canClose && !editing) {
           e.preventDefault();
           onClose();
         }
       }}
-      role="tab"
-      aria-selected={active}
       className={cn(
-        "group relative flex h-full shrink-0 items-center gap-1.5 rounded-t-md px-3 text-xs transition-colors",
-        active
-          ? "text-fg"
-          : "text-fg-muted hover:text-fg hover:bg-surface-2/50",
+        "group relative flex h-full shrink-0 cursor-pointer items-center gap-1.5 rounded-t-md px-3 text-xs transition-colors",
+        active ? "text-fg" : "text-fg-muted hover:text-fg hover:bg-surface-2/50",
       )}
     >
       <FileCode2
@@ -86,7 +134,34 @@ function Tab({
         )}
         aria-hidden
       />
-      <span className="font-mono">{tab.name}</span>
+      {editing ? (
+        <span className="font-mono">
+          <input
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value.replace(/[\\/.]+/g, ""))}
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commit();
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                setEditing(false);
+              }
+              e.stopPropagation();
+            }}
+            spellCheck={false}
+            style={{ width: `${Math.max(draft.length, 1)}ch` }}
+            className="text-fg m-0 appearance-none border-0 bg-transparent p-0 font-mono shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0"
+          />
+          {ext && <span>{ext}</span>}
+        </span>
+      ) : (
+        <span className="font-mono">{tab.name}</span>
+      )}
       {canClose ? (
         <span
           role="button"
@@ -113,7 +188,7 @@ function Tab({
           transition={{ type: "spring", stiffness: 500, damping: 38 }}
         />
       )}
-    </button>
+    </div>
   );
 }
 

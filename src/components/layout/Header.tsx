@@ -1,16 +1,29 @@
 "use client";
 
-import { Loader2, Play } from "lucide-react";
+import { Loader2, Play, Terminal } from "lucide-react";
 import { motion } from "motion/react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { LanguagePicker } from "@/components/editor/LanguagePicker";
+import type { LanguageId } from "@/types/language";
 import { cn } from "@/lib/utils/cn";
 
 interface HeaderProps {
   onRun: () => void;
   isRunning: boolean;
+  language: LanguageId;
+  onLanguageChange: (next: LanguageId) => void;
+  onToggleInput: () => void;
+  hasInput: boolean;
 }
 
-export function Header({ onRun, isRunning }: HeaderProps) {
+export function Header({
+  onRun,
+  isRunning,
+  language,
+  onLanguageChange,
+  onToggleInput,
+  hasInput,
+}: HeaderProps) {
   return (
     <header className="border-border/70 bg-base/85 supports-[backdrop-filter]:bg-base/60 sticky top-0 z-20 grid h-14 shrink-0 grid-cols-3 items-center gap-4 border-b px-4 backdrop-blur-md">
       {/* Left: brand */}
@@ -23,8 +36,29 @@ export function Header({ onRun, isRunning }: HeaderProps) {
         </span>
       </div>
 
-      {/* Center: Run */}
-      <div className="flex items-center justify-center">
+      {/* Center: Run + language + input */}
+      <div className="flex items-center justify-center gap-2">
+        <LanguagePicker value={language} onChange={onLanguageChange} />
+        <button
+          type="button"
+          onClick={onToggleInput}
+          title="Program input (stdin)"
+          aria-label="Program input"
+          className={cn(
+            "border-border/70 bg-surface/40 text-fg-muted hover:text-fg hover:bg-surface-2/60",
+            "relative inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium",
+            "transition-colors",
+          )}
+        >
+          <Terminal className="size-3.5" />
+          <span>Input</span>
+          {hasInput && (
+            <span
+              className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-[var(--color-quack)]"
+              aria-hidden
+            />
+          )}
+        </button>
         <motion.button
           type="button"
           onClick={onRun}
