@@ -1,0 +1,83 @@
+#cloud-config
+# Quode — Piston interactive runner, auto-provision for Oracle Cloud Ubuntu 22.04.
+# Paste this entire file into the "Cloud-init script" field when creating the VM.
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - docker.io
+  - iptables-persistent
+  - curl
+  - jq
+
+write_files:
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": { "max-size": "10m", "max-file": "3" }
+      }
+  - path: /usr/local/bin/piston-install-langs.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      # Install runtimes inside the Piston container once it's healthy.
+      set -euo pipefail
+      until curl -fsS http://localhost:2000/api/v2/runtimes >/dev/null 2>&1; do
+        echo "waiting for piston…"; sleep 3
+      done
+      LANGS=(
+        "python=3.10.0"
+        "node=18.15.0"
+        "typescript=5.0.3"
+        "go=1.16.2"
+        "rust=1.68.2"
+        "java=15.0.2"
+        "c++=10.2.0"
+      )
+      for spec in "${LANGS[@]}"; do
+        lang="${spec%=*}"; ver="${spec#*=}"
+        echo "installing $lang $ver…"
+        curl -fsS -X POST http://localhost:2000/api/v2/packages \
+          -H "Content-Type: application/json" \
+          -d "{\"language\":\"$lang\",\"version\":\"$ver\"}" || true
+      done
+      echo "done."
+  - path: /etc/systemd/system/piston.service
+    content: |
+      [Unit]
+      Description=Piston code execution engine
+      After=docker.service
+      Requires=docker.service
+
+      [Service]
+      Restart=always
+      ExecStartPre=-/usr/bin/docker rm -f piston
+      ExecStart=/usr/bin/docker run --rm --name piston \
+        --privileged \
+        -p 2000:2000 \
+        -v piston_data:/piston \
+        --tmpfs /tmp:exec \
+        ghcr.io/engineer-man/piston
+      ExecStop=/usr/bin/docker stop piston
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  # 1) Open port 2000 in iptables (Oracle Ubuntu blocks everything by default).
+  - iptables -I INPUT 6 -m state --state NEW -p tcp --dport 2000 -j ACCEPT
+  - netfilter-persistent save
+  # 2) Enable Docker.
+  - systemctl enable --now docker
+  - usermod -aG docker ubuntu
+  # 3) Pull Piston image (caches it before service starts).
+  - docker pull ghcr.io/engineer-man/piston
+  # 4) Start Piston as a systemd service.
+  - systemctl daemon-reload
+  - systemctl enable --now piston.service
+  # 5) Install language runtimes (runs in background, takes ~5–10 min).
+  - nohup /usr/local/bin/piston-install-langs.sh >/var/log/piston-langs.log 2>&1 &
+
+final_message: "Piston provisioning complete. Container starting; runtimes installing in background."
