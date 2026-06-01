@@ -89,32 +89,28 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
       }
       if (disposed || !hostRef.current) return;
 
-      // xterm renders to canvas, so it can't resolve CSS vars — pass the
-      // computed value of --font-geist-mono if available, else literal stack.
-      const computedFont =
+      // Next's font loader exposes the resolved family via this CSS var.
+      // The raw value is just the family name string (e.g. "__Geist_Mono_…")
+      // which is exactly what xterm's canvas renderer needs.
+      const cssVarFont =
         getComputedStyle(document.documentElement)
           .getPropertyValue("--font-geist-mono")
-          .trim() || "";
-      const fontFamily = [
-        computedFont,
-        "Geist Mono",
-        "ui-monospace",
-        "JetBrains Mono",
-        "Menlo",
-        "monospace",
-      ]
-        .filter(Boolean)
-        .join(", ");
+          .trim();
+      const fontFamily =
+        cssVarFont && cssVarFont !== ""
+          ? cssVarFont
+          : 'ui-monospace, "Menlo", "Consolas", monospace';
 
       const term = new Terminal({
         cursorBlink: true,
         cursorStyle: "bar",
         fontFamily,
-        fontSize: 12.5,
-        lineHeight: 1.4,
+        fontSize: 13,
+        lineHeight: 1.45,
         letterSpacing: 0,
         convertEol: true,
         scrollback: 5000,
+        allowProposedApi: true,
         theme: theme === "dark" ? DARK_THEME : LIGHT_THEME,
       });
       const fit = new FitAddon();

@@ -237,17 +237,7 @@ html.dark .neu-press:active {
   }
 }
 
-/* xterm.js — let our themed wrapper bg show through and inherit page font.
-   xterm draws to <canvas>, but its DOM scaffolding around the canvas has
-   its own background and font that fight the surrounding neu-inset. */
-.xterm,
-.xterm .xterm-viewport,
-.xterm .xterm-screen {
-  background: transparent !important;
-}
-.xterm {
-  padding: 4px 2px;
-}
+/* xterm.js scrollbar polish only — leave bg/font to JS theme + options. */
 .xterm .xterm-viewport::-webkit-scrollbar {
   width: 8px;
 }
