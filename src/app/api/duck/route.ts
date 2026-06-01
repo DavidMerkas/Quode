@@ -5,12 +5,10 @@ import {
   clientIp,
   rateLimitHeaders,
 } from "@/lib/rate-limit";
-import { DUCK_MODES, type DuckMode } from "@/types/duck";
 import { LANGUAGES, type LanguageId } from "@/types/language";
 
 export const runtime = "nodejs";
 
-const VALID_MODES = new Set<DuckMode>(DUCK_MODES.map((m) => m.id));
 const VALID_LANGS = new Set<LanguageId>(LANGUAGES.map((l) => l.id));
 const MAX_MESSAGE = 4_000;
 const MAX_CODE = 20_000;
@@ -23,18 +21,14 @@ export async function POST(req: Request) {
     return jsonError("Invalid JSON", 400);
   }
 
-  const { message, mode, code, language } = (body ?? {}) as {
+  const { message, code, language } = (body ?? {}) as {
     message?: string;
-    mode?: string;
     code?: string;
     language?: string;
   };
 
   if (typeof message !== "string" || !message.trim()) {
     return jsonError("Missing `message`", 400);
-  }
-  if (typeof mode !== "string" || !VALID_MODES.has(mode as DuckMode)) {
-    return jsonError("Invalid `mode`", 400);
   }
   if (typeof language !== "string" || !VALID_LANGS.has(language as LanguageId)) {
     return jsonError("Invalid `language`", 400);
@@ -56,7 +50,7 @@ export async function POST(req: Request) {
     const human =
       limit.scope === "day"
         ? "Daily Duck limit reached. Try again tomorrow."
-        : `Slow down — try again in ${limit.retryAfterSec}s.`;
+        : `Slow down. Try again in ${limit.retryAfterSec}s.`;
     return new Response(JSON.stringify({ error: human }), {
       status: 429,
       headers: {
@@ -67,7 +61,7 @@ export async function POST(req: Request) {
     });
   }
 
-  const systemPrompt = buildSystemPrompt(mode as DuckMode);
+  const systemPrompt = buildSystemPrompt();
   const userMessage = buildUserTurn({
     message,
     code: safeCode,

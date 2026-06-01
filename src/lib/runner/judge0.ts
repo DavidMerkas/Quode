@@ -13,6 +13,7 @@ const LANGUAGE_IDS: Record<LanguageId, number> = {
   rust: 73, // Rust 1.40.0
   java: 62, // Java (OpenJDK 13.0.1)
   cpp: 54, // C++ (GCC 9.2.0)
+  csharp: 51, // C# (Mono 6.6.0.161)
 };
 
 /**

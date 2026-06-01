@@ -22,6 +22,7 @@ const COMPILERS: Record<
   rust: { compiler: "rust-1.82.0", options: "2021" },
   java: { compiler: "openjdk-jdk-22+36" },
   cpp: { compiler: "gcc-13.2.0", options: "warning,gnu++23" },
+  csharp: { compiler: "mono-6.12.0.199" },
 };
 
 interface WandboxResponse {

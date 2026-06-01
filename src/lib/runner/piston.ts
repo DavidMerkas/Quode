@@ -24,6 +24,7 @@ const PISTON_LANGS: Record<
   rust: { language: "rust", version: "1.68.2", filename: "main.rs" },
   java: { language: "java", version: "15.0.2", filename: "Main.java" },
   cpp: { language: "c++", version: "10.2.0", filename: "main.cpp" },
+  csharp: { language: "mono", version: "6.12.0", filename: "main.cs" },
 };
 
 export async function runCode(
@@ -46,7 +47,7 @@ export async function runCode(
       files: [{ name: cfg.filename, content: code }],
       stdin,
       compile_timeout: 10000,
-      run_timeout: 5000,
+      run_timeout: 3000,
     }),
   });
 

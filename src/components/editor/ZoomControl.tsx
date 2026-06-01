@@ -1,7 +1,8 @@
 "use client";
 
-import { ZoomIn, ZoomOut } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import {
+  DEFAULT_SIZE,
   MAX_SIZE,
   MIN_SIZE,
   useEditorFontSize,
@@ -12,19 +13,21 @@ export function ZoomControl() {
   const { size, inc, dec, reset } = useEditorFontSize();
   const atMin = size <= MIN_SIZE;
   const atMax = size >= MAX_SIZE;
+  const pct = Math.round((size / DEFAULT_SIZE) * 100);
+  const isDefault = size === DEFAULT_SIZE;
 
   return (
     <div
       role="group"
       aria-label="Editor zoom"
-      className="border-border bg-surface/60 inline-flex h-7 items-center overflow-hidden rounded-md border text-xs"
+      className="neu-raised-sm inline-flex h-7 items-center overflow-hidden rounded-xl text-xs"
     >
       <button
         type="button"
         onClick={dec}
         disabled={atMin}
         aria-label="Zoom out"
-        title="Zoom out (⌘−)"
+        title="Zoom out"
         className={cn(
           "flex h-full w-7 items-center justify-center transition-colors",
           atMin
@@ -32,7 +35,7 @@ export function ZoomControl() {
             : "text-fg-muted hover:text-fg hover:bg-surface-2",
         )}
       >
-        <ZoomOut className="size-3.5" />
+        <Minus className="size-3.5" />
       </button>
       <button
         type="button"
@@ -41,18 +44,27 @@ export function ZoomControl() {
           if (e.deltaY < 0) inc();
           else if (e.deltaY > 0) dec();
         }}
-        title="Scroll to zoom · click to reset"
-        aria-label={`Editor zoom, ${size} pixels. Click to reset, scroll to change.`}
-        className="text-fg-muted hover:text-fg hover:bg-surface-2 flex h-full min-w-[2.25rem] items-center justify-center px-1 font-mono text-[11px] transition-colors"
+        title={
+          isDefault
+            ? "Scroll or use ± to zoom"
+            : "Click to reset to 100% · scroll to change"
+        }
+        aria-label={`Editor zoom ${pct} percent. Click to reset, scroll to change.`}
+        className={cn(
+          "flex h-full min-w-[3.25rem] items-center justify-center px-1.5 font-mono text-[11px] tabular-nums transition-colors",
+          isDefault
+            ? "text-fg-muted hover:text-fg hover:bg-surface-2"
+            : "text-fg hover:bg-surface-2",
+        )}
       >
-        {size}
+        {pct}%
       </button>
       <button
         type="button"
         onClick={inc}
         disabled={atMax}
         aria-label="Zoom in"
-        title="Zoom in (⌘+)"
+        title="Zoom in"
         className={cn(
           "flex h-full w-7 items-center justify-center transition-colors",
           atMax
@@ -60,7 +72,7 @@ export function ZoomControl() {
             : "text-fg-muted hover:text-fg hover:bg-surface-2",
         )}
       >
-        <ZoomIn className="size-3.5" />
+        <Plus className="size-3.5" />
       </button>
     </div>
   );

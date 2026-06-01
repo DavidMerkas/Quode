@@ -5,7 +5,8 @@ export type LanguageId =
   | "go"
   | "rust"
   | "java"
-  | "cpp";
+  | "cpp"
+  | "csharp";
 
 export interface Language {
   id: LanguageId;
@@ -56,6 +57,12 @@ export const LANGUAGES: readonly Language[] = [
     label: "C++",
     monaco: "cpp",
     starter: `#include <iostream>\n\nint main() {\n    std::cout << "Hello, Duck!" << std::endl;\n    return 0;\n}\n`,
+  },
+  {
+    id: "csharp",
+    label: "C#",
+    monaco: "csharp",
+    starter: `using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, Duck!");\n    }\n}\n`,
   },
 ] as const;
 

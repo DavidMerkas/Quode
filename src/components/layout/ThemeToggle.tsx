@@ -16,7 +16,7 @@ export function ThemeToggle() {
       transition={{ type: "spring", stiffness: 600, damping: 30 }}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={dark}
-      className="bg-surface/80 border-border hover:border-border-strong hover:bg-surface text-fg-muted hover:text-fg relative inline-flex size-8 items-center justify-center overflow-hidden rounded-md border transition-colors"
+      className="neu-raised-sm neu-press text-fg-muted hover:text-fg relative inline-flex size-9 items-center justify-center overflow-hidden rounded-xl transition-all duration-150"
     >
       <AnimatePresence mode="wait" initial={false}>
         {dark ? (

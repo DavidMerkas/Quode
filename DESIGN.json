@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-30T00:00:00Z",
+  "title": "Design System: Quode",
+  "extensions": {
+    "colorMeta": {
+      "margin-marker": {
+        "role": "primary",
+        "displayName": "Margin Marker",
+        "canonical": "#ff8c42",
+        "tonalRamp": ["#3a1c08", "#5e2e10", "#82401a", "#a55224", "#c8662f", "#ec803f", "#ff9d6a", "#ffc4a3"]
+      },
+      "lectern-gold": {
+        "role": "primary",
+        "displayName": "Lectern Gold",
+        "canonical": "#ffd43b",
+        "tonalRamp": ["#3a2e00", "#5e4900", "#826500", "#a58000", "#c89c00", "#ecb800", "#ffd43b", "#ffe580"]
+      },
+      "reading-room-cream": {
+        "role": "neutral",
+        "displayName": "Reading Room Cream",
+        "canonical": "#fdf3c4",
+        "tonalRamp": ["#3a3318", "#5e5325", "#827033", "#a58e44", "#c8ac5a", "#ecd17a", "#fdf3c4", "#fff9dc"]
+      },
+      "vellum": {
+        "role": "neutral",
+        "displayName": "Vellum",
+        "canonical": "#fef7d4",
+        "tonalRamp": ["#3a3618", "#5e5825", "#827a33", "#a59c44", "#c8ba5a", "#ecda7a", "#fef7d4", "#fffbe6"]
+      },
+      "bound-page": {
+        "role": "neutral",
+        "displayName": "Bound Page",
+        "canonical": "#f9e9a8",
+        "tonalRamp": ["#3a3318", "#5e5325", "#827033", "#a58e44", "#c8ac5a", "#ecd17a", "#f9e9a8", "#fff3c8"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2b1f02",
+        "tonalRamp": ["#0d0900", "#1a1300", "#2b1f02", "#3d2d0c", "#54401b", "#6b541a", "#8a702c", "#a98e42"]
+      },
+      "closed-library": {
+        "role": "neutral",
+        "displayName": "Closed Library",
+        "canonical": "#0b0b0f",
+        "tonalRamp": ["#040406", "#0b0b0f", "#15151b", "#1c1c24", "#23232d", "#2a2a35", "#3a3a47", "#52525b"]
+      },
+      "lamp-lit-page": {
+        "role": "neutral",
+        "displayName": "Lamp-lit Page",
+        "canonical": "#f4f4f5",
+        "tonalRamp": ["#2a2a30", "#3a3a47", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#f4f4f5"]
+      }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "Panel headers and the Quode wordmark. Quiet — 15px / 600. Never display-size." },
+      "body": { "displayName": "Body", "purpose": "Chat prose, button labels, output text. Geist 14px / 1.55 with cv02/03/04/11 features." },
+      "label": { "displayName": "Label", "purpose": "Uppercase captions: TRY ASKING, runner badges, meta. 10px / 500 / +0.06em tracking." },
+      "code": { "displayName": "Code", "purpose": "Editor (Monaco), inline code, stdin, output body. Geist Mono 13px / 1.55." }
+    },
+    "shadows": [
+      { "name": "action-glow", "value": "0 1px 0 rgba(255,255,255,0.25) inset, 0 4px 14px -4px rgba(255,140,66,0.55)", "purpose": "Run button only. Inset highlight + warm halo." },
+      { "name": "backdrop-blur", "value": "backdrop-filter: blur(8px)", "purpose": "Sticky header and output drawer. Lets the page's ambient gradient bleed through." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Default easing for state transitions — quartic ease-out, no bounce." },
+      { "name": "duration-quick", "value": "120ms", "purpose": "Background, color, and border transitions on hover." },
+      { "name": "duration-state", "value": "180ms", "purpose": "Tab activation, drawer open/close, message appearance." },
+      { "name": "spring-press", "value": "{ type: 'spring', stiffness: 600, damping: 30 }", "purpose": "Tactile press on the Run button (motion/react)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (Run)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The only loud action surface. Used for Run.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden><path d=\"M8 5v14l11-7z\"/></svg><span>Run</span><kbd class=\"ds-btn-primary__kbd\">⌘↵</kbd></button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px 0 10px; border-radius: 10px; border: none; background: #ff8c42; color: #1a0d00; font: 500 13px/1 'Geist', ui-sans-serif, system-ui, sans-serif; cursor: pointer; box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 4px 14px -4px rgba(255,140,66,0.55); transition: filter 150ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-primary:hover { filter: brightness(1.05); } .ds-btn-primary:active { filter: brightness(0.95); } .ds-btn-primary__kbd { margin-left: 2px; padding: 1px 4px; border-radius: 4px; background: rgba(0,0,0,0.15); font: 500 10px/1 'Geist Mono', ui-monospace, monospace; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Every secondary control: language picker, input toggle, theme toggle.",
+      "html": "<button class=\"ds-btn-ghost\"><span>Python</span><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden><polyline points=\"6 9 12 15 18 9\"/></svg></button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border-radius: 10px; border: none; background: transparent; color: #6b541a; font: 500 12px/1 'Geist', ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background 120ms cubic-bezier(0.16,1,0.3,1), color 120ms cubic-bezier(0.16,1,0.3,1); } .ds-btn-ghost:hover { background: #f9e9a8; color: #2b1f02; }"
+    },
+    {
+      "name": "Tab",
+      "kind": "custom",
+      "refersTo": "tab",
+      "description": "Inline tab chip. Active is filled; inactive is transparent. Double-click to rename.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab--active\">main.py<span class=\"ds-tab__close\" aria-label=\"Close main.py\">×</span></button><button class=\"ds-tab\">helper.js</button></div>",
+      "css": ".ds-tabs { display: inline-flex; gap: 2px; } .ds-tab { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: none; border-radius: 10px; background: transparent; color: #6b541a; font: 400 12px/1 'Geist Mono', ui-monospace, monospace; cursor: pointer; transition: background 120ms cubic-bezier(0.16,1,0.3,1), color 120ms cubic-bezier(0.16,1,0.3,1); } .ds-tab:hover { background: rgba(249,233,168,0.4); color: #2b1f02; } .ds-tab--active { background: #f9e9a8; color: #2b1f02; } .ds-tab__close { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; color: #957c34; transition: background 120ms, color 120ms; } .ds-tab__close:hover { background: #f0d97e; color: #2b1f02; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Vellum-surface input with brand focus ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"Ask Duck…\" />",
+      "css": ".ds-input { width: 100%; padding: 8px 12px; border-radius: 10px; border: 1px solid #d9be65; background: #fef7d4; color: #2b1f02; font: 400 14px/1.5 'Geist', ui-sans-serif, system-ui, sans-serif; outline: none; transition: border-color 120ms cubic-bezier(0.16,1,0.3,1); } .ds-input::placeholder { color: #957c34; } .ds-input:focus-visible { outline: 2px solid #ff8c42; outline-offset: 2px; border-radius: 10px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Generic content container — Vellum surface, Spine Thread border, 14px radius.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card__label\">Output</div><div class=\"ds-card__body\">All quiet. Hit <kbd>⌘↵</kbd> to run.</div></div>",
+      "css": ".ds-card { padding: 16px; border-radius: 14px; border: 1px solid #d9be65; background: #fef7d4; color: #2b1f02; font: 400 14px/1.55 'Geist', ui-sans-serif, system-ui, sans-serif; } .ds-card__label { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #f9e9a8; color: #6b541a; font: 500 10px/1 'Geist', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; } .ds-card__body { color: #2b1f02; } .ds-card__body kbd { padding: 1px 4px; border-radius: 4px; background: #f9e9a8; font: 400 11px/1 'Geist Mono', monospace; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill label for runner badges, suggestion buttons, meta tags.",
+      "html": "<span class=\"ds-chip\">wandbox</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 999px; background: #f9e9a8; color: #6b541a; font: 500 11px/1 'Geist', ui-sans-serif, system-ui, sans-serif; }"
+    },
+    {
+      "name": "Duck Mascot (Idle)",
+      "kind": "custom",
+      "refersTo": "duck",
+      "description": "Small Lectern Gold mark used in three places only: empty state, panel header, favicon.",
+      "html": "<div class=\"ds-duck\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 64 64\" aria-hidden><circle cx=\"32\" cy=\"34\" r=\"20\" fill=\"#ffd43b\"/><circle cx=\"38\" cy=\"24\" r=\"12\" fill=\"#ffd43b\"/><path d=\"M48 24 L58 25 L48 28 Z\" fill=\"#ff8c42\"/><circle cx=\"40\" cy=\"22\" r=\"1.5\" fill=\"#2b1f02\"/></svg></div>",
+      "css": ".ds-duck { display: inline-flex; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Reading Room",
+    "overview": "Quode is a warm reading room with a single lamp on. Tall windows let in late-afternoon light that saturates the cream paper, the bound page, the gilt edge of a shelf. The user is at a long table with their laptop open, a notebook beside them, and a patient mentor seated across the room who answers when asked and otherwise lets them read. The interface is the room around the work, not a control panel. The system explicitly rejects the cluttered toolbars of Replit and the bubble-and-name-tag of generic AI chatbots. The Run button is the only loud voice in the room.",
+    "keyCharacteristics": [
+      "Cream paper backgrounds, warm brown ink, occasional gold for moments of attention",
+      "One primary action surface (Run); all other controls are ghost-weight at rest",
+      "Generous radii on everything (6 / 10 / 14px) — nothing looks cut from sheet metal",
+      "Flat by default; elevation reserved for the Run button and modal focus",
+      "Typography pairs Geist Sans (UI) with Geist Mono (code) — both warm, both modern"
+    ],
+    "rules": [
+      { "name": "The One Loud Voice Rule", "body": "Margin Marker (#ff8c42) appears in at most one surface on screen — the Run button — plus the optional 6×6px dot that indicates stdin content. Any other use of orange is a mistake.", "section": "colors" },
+      { "name": "The Warm Black Rule", "body": "Black is forbidden. Where pure black would normally appear, use the tinted neutrals. The reading room is never sterile.", "section": "colors" },
+      { "name": "The Selection-as-Brand Rule", "body": "Light mode selection is Margin Marker. Dark mode selection is Lectern Gold. The user's act of selecting text is the moment the brand greets them most directly.", "section": "colors" },
+      { "name": "The Single-Family Rule", "body": "Two fonts only: Geist for UI, Geist Mono for code. No third font for headers, no system fallback for branded copy, no Inter for neutrality.", "section": "typography" },
+      { "name": "The No-Display-Size Rule", "body": "Nothing larger than 15px in normal app chrome. Headers earn weight, not size.", "section": "typography" },
+      { "name": "The Flat Reading Surface Rule", "body": "Cards, panels, drawers, tabs, inputs, and ghost buttons are flat. They use background tint and border, never box-shadow. The only element with a real shadow in the entire app is the Run button.", "section": "elevation" },
+      { "name": "The No-Floating-Cards Rule", "body": "No element hovers above the page with a generic drop shadow. If something needs to feel raised, raise it with tonal layering and a defined border.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Margin Marker (#ff8c42) exclusively for the Run button and the stdin-content dot.",
+      "Do layer surfaces tonally — Reading Room Cream → Vellum → Bound Page — to suggest depth without shadows.",
+      "Do keep every neutral warm-tinted. Black is forbidden; pure white is forbidden.",
+      "Do size text quietly. Geist 14px body, 15px title, 10px uppercase label. Nothing larger in app chrome.",
+      "Do use the 6 / 10 / 14 / 999 radius scale consistently.",
+      "Do keep no more than five interactive controls in the header bar.",
+      "Do let typography and surface tint carry the visual hierarchy.",
+      "Do respect prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't make the UI look like Replit. No toolbars on every edge, no badge wall, no settings cog parade.",
+      "Don't make Duck look like a generic AI chatbot. No model name badge, no token meter, no avatar circle next to every message.",
+      "Don't use pure black (#000) or pure white (#fff) anywhere.",
+      "Don't use box-shadow on cards, tabs, panels, drawers, or any secondary surface.",
+      "Don't use side-stripe borders (border-left ≥ 2px as a colored accent).",
+      "Don't use gradient text. Never.",
+      "Don't stack rounded corners that fight (e.g. a 14px card containing a 16px input).",
+      "Don't introduce a second mono font for design flavor.",
+      "Don't size anything in the header above 15px."
+    ]
+  }
+}

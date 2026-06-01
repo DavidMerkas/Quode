@@ -16,6 +16,7 @@ const EXTS: Record<LanguageId, string> = {
   rust: "rs",
   java: "java",
   cpp: "cpp",
+  csharp: "cs",
 };
 
 export function extFor(id: LanguageId): string {
@@ -25,7 +26,7 @@ export function extFor(id: LanguageId): string {
 /**
  * Build a fresh file name for a new tab in `language`, avoiding collisions
  * with existing tab names. First file gets "main.py", duplicates get
- * "main(2).py", "main(3).py", etc.
+ * "main2.py", "main3.py", etc.
  */
 export function newTabName(
   language: LanguageId,
@@ -35,7 +36,7 @@ export function newTabName(
   const taken = new Set(existing.map((t) => t.name));
   if (!taken.has(`main.${ext}`)) return `main.${ext}`;
   for (let i = 2; i < 1000; i++) {
-    const candidate = `main(${i}).${ext}`;
+    const candidate = `main${i}.${ext}`;
     if (!taken.has(candidate)) return candidate;
   }
   return `main.${Date.now()}.${ext}`;

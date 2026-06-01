@@ -1,29 +1,41 @@
 "use client";
 
 import { motion } from "motion/react";
-import { DUCK_MODES, type ChatMessage as ChatMsg } from "@/types/duck";
+import type { ChatMessage as ChatMsg } from "@/types/duck";
+import type { LanguageId } from "@/types/language";
 import { DuckMarkdown } from "@/lib/duck/markdown";
+import { DuckMascot } from "@/components/duck/DuckMascot";
 
 interface ChatMessageProps {
   message: ChatMsg;
   isStreaming?: boolean;
+  /** First Duck message in the thread — drives the empty-state → message
+   *  shared layout animation via layoutId. */
+  isFirstDuck?: boolean;
+  /** The user's active tab code — passed through so snippet code blocks
+   *  can diff against it. */
+  currentCode?: string;
+  currentLanguage?: LanguageId;
 }
 
-export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  isStreaming,
+  isFirstDuck,
+  currentCode,
+  currentLanguage,
+}: ChatMessageProps) {
   const isUser = message.role === "user";
-  const modeLabel = message.mode
-    ? DUCK_MODES.find((m) => m.id === message.mode)?.label
-    : null;
 
   if (isUser) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 520, damping: 32 }}
         className="flex justify-end"
       >
-        <div className="bg-surface-2 border-border/60 text-fg max-w-[85%] rounded-2xl rounded-br-md border px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap">
+        <div className="neu-raised-sm text-fg max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
           {message.content}
         </div>
       </motion.div>
@@ -35,17 +47,25 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="min-w-0"
+      className="flex min-w-0 gap-3"
     >
-      {modeLabel && (
-        <div className="text-fg-subtle mb-1 flex items-center gap-1.5 text-[10px] font-medium tracking-wide uppercase">
-          <span className="bg-[var(--color-quack)] inline-block size-1 rounded-full" />
-          Duck · {modeLabel}
-        </div>
-      )}
-      <div className={isStreaming ? "opacity-95" : undefined}>
+      <motion.div
+        layoutId={isFirstDuck ? "duck-hero" : undefined}
+        transition={{ type: "spring", stiffness: 220, damping: 26 }}
+        className="mt-0.5 shrink-0"
+        style={{ width: 24, height: 24 }}
+        aria-hidden
+      >
+        <DuckMascot fill state={isStreaming ? "speaking" : "idle"} />
+      </motion.div>
+      <div className={isStreaming ? "min-w-0 flex-1 opacity-95" : "min-w-0 flex-1"}>
         {message.content ? (
-          <DuckMarkdown>{message.content}</DuckMarkdown>
+          <DuckMarkdown
+            currentCode={currentCode}
+            currentLanguage={currentLanguage}
+          >
+            {message.content}
+          </DuckMarkdown>
         ) : (
           <span className="text-fg-subtle text-sm italic">thinking…</span>
         )}

@@ -29,10 +29,12 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "JetBrains Mono", monospace;
 
-  /* Radii */
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  /* Radii — 6 / 10 / 14 / pill, per DESIGN.md "The Reading Room" */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 9999px;
 }
 
 html,
@@ -79,9 +81,7 @@ html.dark {
 }
 
 html.dark body::before {
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(255, 212, 59, 0.05), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(255, 140, 66, 0.04), transparent 60%);
+  background: none;
 }
 
 html.dark *::selection {
@@ -104,6 +104,96 @@ html.dark .duck-md .shiki {
 *::selection {
   background: var(--color-quack);
   color: #1a0d00;
+}
+
+/* ---------- Neumorphism + light claymorphism ---------- */
+/* Raised: soft outset shadow with warm highlight + cool shade.
+   Inset: pressed/recessed surface. A touch of inner highlight gives
+   the "clay" softness without going full skeuomorphic. */
+
+.neu-raised {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface) 97%, white 4%),
+    var(--color-surface)
+  );
+  box-shadow:
+    4px 4px 10px rgba(120, 86, 14, 0.1),
+    -4px -4px 10px rgba(255, 248, 220, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 rgba(120, 86, 14, 0.05);
+}
+
+.neu-raised-sm {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface) 97%, white 4%),
+    var(--color-surface)
+  );
+  box-shadow:
+    2px 2px 5px rgba(120, 86, 14, 0.09),
+    -2px -2px 5px rgba(255, 248, 220, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.neu-inset {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface-2) 94%, var(--color-border) 6%),
+    var(--color-surface-2)
+  );
+  box-shadow:
+    inset 2px 2px 6px rgba(120, 86, 14, 0.1),
+    inset -2px -2px 6px rgba(255, 248, 220, 0.45);
+}
+
+.neu-press:active {
+  box-shadow:
+    inset 2px 2px 5px rgba(120, 86, 14, 0.12),
+    inset -2px -2px 5px rgba(255, 248, 220, 0.45);
+}
+
+/* Dark theme — invert highlight/shade with warmer ducky tints */
+html.dark .neu-raised {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface) 95%, white 3%),
+    var(--color-surface)
+  );
+  box-shadow:
+    4px 4px 10px rgba(0, 0, 0, 0.32),
+    -4px -4px 10px rgba(60, 60, 75, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+html.dark .neu-raised-sm {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface) 95%, white 3%),
+    var(--color-surface)
+  );
+  box-shadow:
+    2px 2px 5px rgba(0, 0, 0, 0.3),
+    -2px -2px 5px rgba(60, 60, 75, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html.dark .neu-inset {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-surface-2) 92%, black 5%),
+    var(--color-surface-2)
+  );
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.32),
+    inset -2px -2px 6px rgba(60, 60, 75, 0.13);
+}
+
+html.dark .neu-press:active {
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.32),
+    inset -2px -2px 5px rgba(60, 60, 75, 0.13);
 }
 
 /* Subtle scrollbars */
@@ -160,6 +250,32 @@ html.dark .duck-md .shiki {
   padding: 0;
   font-size: inherit;
 }
+/* Snippet diff: lines that aren't in the user's current code get a soft
+   green wash. Light mode uses a warm-tinted green; dark a brighter one. */
+.duck-md .shiki .line.is-new {
+  display: inline-block;
+  width: 100%;
+  background: rgba(76, 175, 80, 0.13);
+}
+html.dark .duck-md .shiki .line.is-new {
+  background: rgba(70, 200, 90, 0.16);
+}
+
+/* Monaco editor — transient highlight after applying a Duck snippet.
+   The class is applied via deltaDecorations and removed after ~4s. */
+.quode-applied-line {
+  background: rgba(76, 175, 80, 0.18);
+  transition: background-color 1.6s ease-out;
+}
+.quode-applied-line-fade {
+  background: rgba(76, 175, 80, 0) !important;
+}
+html.dark .quode-applied-line {
+  background: rgba(70, 200, 90, 0.22);
+}
+html.dark .quode-applied-line-fade {
+  background: rgba(70, 200, 90, 0) !important;
+}
 
 /* Caret pulse for streaming */
 @keyframes caret-pulse {
@@ -176,7 +292,7 @@ html.dark .duck-md .shiki {
   width: 0.5ch;
   height: 1em;
   vertical-align: text-bottom;
-  background: var(--color-quack);
+  background: var(--color-quack-soft);
   margin-left: 1px;
   border-radius: 1px;
   animation: caret-pulse 1s ease-in-out infinite;

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quode — code with Duck",
+  title: "Quode, code with Duck",
   description:
     "A web-based coding playground with an AI duck mentor. Write code, run it, and learn with Duck.",
 };
@@ -30,6 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>

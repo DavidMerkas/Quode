@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const human =
       limit.scope === "day"
         ? "Daily run limit reached. Try again tomorrow."
-        : `Slow down — try again in ${limit.retryAfterSec}s.`;
+        : `Slow down. Try again in ${limit.retryAfterSec}s.`;
     return NextResponse.json(
       { error: human },
       {
