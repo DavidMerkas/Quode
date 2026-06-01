@@ -99,9 +99,9 @@ export const LANGUAGES = {
 
   csharp: {
     file: "main.csx",
-    // dotnet-script reads a .csx file. Must be installed:
-    //   sudo -u quode-runner -H bash -c 'dotnet tool install -g dotnet-script'
-    argv: (cwd) => [resolveBin(DOTNET_BIN), "script", path.join(cwd, "main.csx")],
+    // dotnet-script installed system-wide at /opt/dotnet-tools, symlinked
+    // into /usr/local/bin/dotnet-script.
+    argv: (cwd) => [resolveBin("dotnet-script"), path.join(cwd, "main.csx")],
   },
 };
 
