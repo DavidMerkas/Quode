@@ -6,8 +6,9 @@ import { Header } from "@/components/layout/Header";
 import { EditorPanel } from "@/components/editor/EditorPanel";
 import { TabStrip } from "@/components/editor/TabStrip";
 import { ZoomControl } from "@/components/editor/ZoomControl";
-import { OutputDrawer, type RunResult } from "@/components/editor/OutputDrawer";
+import { InteractiveTerminal } from "@/components/editor/InteractiveTerminal";
 import { ResizeHandle } from "@/components/editor/ResizeHandle";
+import { useInteractiveRun } from "@/hooks/useInteractiveRun";
 import { DuckPanel } from "@/components/duck/DuckPanel";
 import { SelectionToolbar } from "@/components/ui/SelectionToolbar";
 import { CommandPalette, type Command } from "@/components/ui/CommandPalette";
@@ -36,8 +37,9 @@ export function Workspace() {
   const [tabs, setTabs] = useState<EditorTab[]>(() => [newTab(DEFAULT_LANGUAGE, [])]);
   const [activeId, setActiveId] = useState<string>(() => tabs[0].id);
 
-  const [isRunning, setIsRunning] = useState(false);
-  const [output, setOutput] = useState<RunResult | null>(null);
+  const runner = useInteractiveRun();
+  const isRunning =
+    runner.status === "running" || runner.status === "connecting";
   const [pendingLang, setPendingLang] = useState<LanguageId | null>(null);
   const [terminalHeight, setTerminalHeight] = useState<number>(240);
   const [hydrated, setHydrated] = useState(false);
@@ -115,9 +117,9 @@ export function Workspace() {
       const t = newTab(lang, tabs);
       setTabs((cur) => [...cur, t]);
       setActiveId(t.id);
-      setOutput(null);
+      runner.kill();
     },
-    [tabs],
+    [tabs, runner],
   );
 
   const handleCloseTab = useCallback(
@@ -166,9 +168,9 @@ export function Workspace() {
           };
         }),
       );
-      setOutput(null);
+      runner.kill();
     },
-    [activeId],
+    [activeId, runner],
   );
 
   const handleLanguageChange = useCallback(
@@ -204,10 +206,13 @@ export function Workspace() {
     );
   }, []);
 
-  const handleActivate = useCallback((id: string) => {
-    setActiveId(id);
-    setOutput(null);
-  }, []);
+  const handleActivate = useCallback(
+    (id: string) => {
+      setActiveId(id);
+      runner.kill();
+    },
+    [runner],
+  );
 
   const handleCodeChange = useCallback(
     (code: string) => {
@@ -218,55 +223,20 @@ export function Workspace() {
     [activeId],
   );
 
-  const handleRun = useCallback(async (codeOverride?: string) => {
-    if (isRunning) return;
-    const code =
-      typeof codeOverride === "string" ? codeOverride : activeTab.code;
-    setIsRunning(true);
-    setOutput(null);
-
-    try {
-      const res = await fetch("/api/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          language: activeTab.language,
-          code,
-          stdin: activeTab.stdin,
-        }),
+  const handleRun = useCallback(
+    (codeOverride?: string) => {
+      if (isRunning) return;
+      const code =
+        typeof codeOverride === "string" ? codeOverride : activeTab.code;
+      runner.start({
+        language: activeTab.language,
+        code,
+        cols: 80,
+        rows: 24,
       });
-      const data = (await res.json()) as
-        | {
-            stdout: string;
-            stderr: string;
-            exitCode: number;
-            durationMs: number;
-          }
-        | { error: string; detail?: string };
-
-      if (!res.ok || "error" in data) {
-        const msg =
-          "error" in data
-            ? `${data.error}${data.detail ? `: ${data.detail}` : ""}`
-            : "Run failed";
-        setOutput({ stdout: "", stderr: msg, exitCode: -1, durationMs: 0 });
-      } else {
-        setOutput(data);
-      }
-    } catch (err) {
-      setOutput({
-        stdout: "",
-        stderr:
-          err instanceof Error
-            ? err.message
-            : "Network error talking to the runner.",
-        exitCode: -1,
-        durationMs: 0,
-      });
-    } finally {
-      setIsRunning(false);
-    }
-  }, [activeTab, isRunning]);
+    },
+    [activeTab.code, activeTab.language, isRunning, runner],
+  );
 
   // Global ⌘/Ctrl+Enter
   useEffect(() => {
@@ -564,12 +534,7 @@ export function Workspace() {
             height={terminalHeight}
             onChange={updateTerminalHeight}
           />
-          <OutputDrawer
-            open
-            result={output}
-            isRunning={isRunning}
-            height={terminalHeight}
-          />
+          <InteractiveTerminal height={terminalHeight} runner={runner} />
         </main>
 
         <div className="hidden w-[400px] shrink-0 md:flex lg:w-[440px]">

@@ -1,0 +1,19 @@
+{
+  "name": "quode-runner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Quode interactive code runner. WebSocket + node-pty, one PTY per session.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}
