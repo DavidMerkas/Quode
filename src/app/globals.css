@@ -237,6 +237,28 @@ html.dark .neu-press:active {
   }
 }
 
+/* xterm.js — let our themed wrapper bg show through and inherit page font.
+   xterm draws to <canvas>, but its DOM scaffolding around the canvas has
+   its own background and font that fight the surrounding neu-inset. */
+.xterm,
+.xterm .xterm-viewport,
+.xterm .xterm-screen {
+  background: transparent !important;
+}
+.xterm {
+  padding: 4px 2px;
+}
+.xterm .xterm-viewport::-webkit-scrollbar {
+  width: 8px;
+}
+.xterm .xterm-viewport::-webkit-scrollbar-thumb {
+  background: rgba(120, 100, 60, 0.25);
+  border-radius: 8px;
+}
+.dark .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+
 /* Shiki code blocks inside Duck markdown — light cream */
 .duck-md .shiki {
   padding: 0.75rem 0.9rem;

@@ -78,6 +78,15 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
         import("@xterm/xterm"),
         import("@xterm/addon-fit"),
       ]);
+      // Canvas renderer needs the font fully loaded before first paint, else
+      // it falls back to default monospace and never re-measures.
+      if (document.fonts?.ready) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          /* ignore */
+        }
+      }
       if (disposed || !hostRef.current) return;
 
       // xterm renders to canvas, so it can't resolve CSS vars — pass the
