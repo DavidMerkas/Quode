@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Code2, X } from "lucide-react";
+import { Code2, Search, X } from "lucide-react";
 import { DuckMascot } from "@/components/duck/DuckMascot";
 import { ChatMessage } from "@/components/duck/ChatMessage";
 import { ChatInput } from "@/components/duck/ChatInput";
 import type { ChatMessage as ChatMsg } from "@/types/duck";
 import type { LanguageId } from "@/types/language";
+import { useDuckInspecting } from "@/lib/duck-prefs";
 import { cn } from "@/lib/utils/cn";
 
 interface DuckPanelProps {
@@ -161,6 +162,8 @@ export function DuckPanel({
         )}
       </div>
 
+      <InspectingDuckWithDebug active={!!streamingId} />
+
       <div className="p-3">
         {attachment && (
           <AttachmentCard
@@ -180,6 +183,146 @@ export function DuckPanel({
         />
       </div>
     </aside>
+  );
+}
+
+function InspectingDuckWithDebug({ active }: { active: boolean }) {
+  const { inspecting } = useDuckInspecting();
+  const [forced, setForced] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.altKey && (e.key === "i" || e.key === "I")) {
+        e.preventDefault();
+        setForced((f) => !f);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  if (!inspecting) return null;
+  return <InspectingDuck active={active || forced} />;
+}
+
+function InspectingDuck({ active }: { active: boolean }) {
+  const [rect, setRect] = useState<{
+    top: number;
+    left: number;
+    height: number;
+  } | null>(null);
+
+  const [target, setTarget] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+
+  useEffect(() => {
+    if (!active) {
+      setRect(null);
+      return;
+    }
+    const measure = () => {
+      const el = document.querySelector<HTMLElement>("[data-editor-panel]");
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRect((prev) => {
+        if (
+          prev &&
+          prev.top === r.top &&
+          prev.left === r.left &&
+          prev.height === r.height
+        ) {
+          return prev;
+        }
+        return { top: r.top, left: r.left, height: r.height };
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    const id = window.setInterval(measure, 500);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.clearInterval(id);
+    };
+  }, [active]);
+
+  useEffect(() => {
+    if (!active || !rect) return;
+    const pick = () => {
+      const pad = 24;
+      const duckSize = 64;
+      const maxX = Math.max(pad, 420 - duckSize - pad);
+      const maxY = Math.max(pad, rect.height - duckSize - pad);
+      setTarget({
+        x: pad + Math.random() * (maxX - pad),
+        y: pad + Math.random() * (maxY - pad),
+      });
+    };
+    pick();
+    let id = 0;
+    const schedule = () => {
+      id = window.setTimeout(() => {
+        pick();
+        schedule();
+      }, 2000 + Math.random() * 1500);
+    };
+    schedule();
+    return () => window.clearTimeout(id);
+  }, [active, rect]);
+
+  return (
+    <AnimatePresence>
+      {active && rect && (
+        <motion.div
+          key="inspector"
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.6 }}
+          transition={{ type: "spring", stiffness: 240, damping: 24 }}
+          style={{
+            position: "fixed",
+            top: rect.top,
+            left: rect.left,
+            height: rect.height,
+            width: 420,
+            pointerEvents: "none",
+            zIndex: 40,
+          }}
+          aria-hidden
+        >
+          <motion.div
+            animate={{ x: target.x, y: target.y }}
+            transition={{ type: "spring", stiffness: 60, damping: 14, mass: 1.2 }}
+            style={{ position: "absolute", width: 64, height: 64 }}
+          >
+            <motion.div
+              animate={{ y: [0, -6, 0], rotate: [-3, 3, -3] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              style={{ width: 64, height: 64, position: "relative" }}
+            >
+              <DuckMascot fill state="thinking" />
+              <motion.div
+                animate={{ rotate: [-12, 8, -12], y: [0, -2, 0] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                style={{
+                  position: "absolute",
+                  left: -8,
+                  bottom: 22,
+                  transformOrigin: "70% 30%",
+                  filter:
+                    "drop-shadow(0 1px 1.5px rgba(0,0,0,0.25))",
+                }}
+                aria-hidden
+              >
+                <Search
+                  className="size-6 text-[var(--color-fg)]"
+                  strokeWidth={2.5}
+                />
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

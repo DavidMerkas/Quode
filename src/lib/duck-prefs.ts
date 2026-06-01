@@ -2,52 +2,72 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 
-const TRACK_KEY = "quode-duck-eye-tracking";
-const DEFAULT_TRACKING = true;
+function makeBoolPref(storageKey: string, defaultValue: boolean) {
+  let value = defaultValue;
+  const listeners = new Set<() => void>();
 
-let tracking: boolean = DEFAULT_TRACKING;
-const listeners = new Set<() => void>();
+  const read = (): boolean => {
+    try {
+      const v = window.localStorage.getItem(storageKey);
+      if (v === "0") return false;
+      if (v === "1") return true;
+    } catch {
+      /* ignore */
+    }
+    return defaultValue;
+  };
 
-function read(): boolean {
-  try {
-    const v = window.localStorage.getItem(TRACK_KEY);
-    if (v === "0") return false;
-    if (v === "1") return true;
-  } catch {
-    /* ignore */
+  const write = (v: boolean) => {
+    try {
+      window.localStorage.setItem(storageKey, v ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const set = (v: boolean) => {
+    if (v === value) return;
+    value = v;
+    write(v);
+    listeners.forEach((l) => l());
+  };
+
+  if (typeof window !== "undefined") {
+    value = read();
   }
-  return DEFAULT_TRACKING;
+
+  return {
+    use() {
+      return useSyncExternalStore(
+        (cb) => {
+          listeners.add(cb);
+          return () => listeners.delete(cb);
+        },
+        () => value,
+        () => defaultValue,
+      );
+    },
+    set,
+  };
 }
 
-function write(v: boolean) {
-  try {
-    window.localStorage.setItem(TRACK_KEY, v ? "1" : "0");
-  } catch {
-    /* ignore */
-  }
-}
-
-function set(v: boolean) {
-  if (v === tracking) return;
-  tracking = v;
-  write(v);
-  listeners.forEach((l) => l());
-}
-
-if (typeof window !== "undefined") {
-  tracking = read();
-}
+const eyePref = makeBoolPref("quode-duck-eye-tracking", true);
+const inspectPref = makeBoolPref("quode-duck-inspecting", true);
 
 export function useDuckEyeTracking() {
-  const value = useSyncExternalStore(
-    (cb) => {
-      listeners.add(cb);
-      return () => listeners.delete(cb);
-    },
-    () => tracking,
-    () => DEFAULT_TRACKING,
-  );
-  const toggle = useCallback(() => set(!tracking), []);
-  const setVal = useCallback((v: boolean) => set(v), []);
+  const value = eyePref.use();
+  const toggle = useCallback(() => eyePref.set(!value), [value]);
+  const setVal = useCallback((v: boolean) => eyePref.set(v), []);
   return { eyeTracking: value, toggleEyeTracking: toggle, setEyeTracking: setVal };
+}
+
+export function useDuckInspecting() {
+  const value = inspectPref.use();
+  const toggle = useCallback(() => inspectPref.set(!value), [value]);
+  const setVal = useCallback((v: boolean) => inspectPref.set(v), []);
+  return {
+    inspecting: value,
+    toggleInspecting: toggle,
+    setInspecting: setVal,
+  };
 }

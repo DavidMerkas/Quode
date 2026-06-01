@@ -8,7 +8,7 @@ import {
   useKeyboardSound,
   type KeyboardPackId,
 } from "@/lib/keyboard-sound";
-import { useDuckEyeTracking } from "@/lib/duck-prefs";
+import { useDuckEyeTracking, useDuckInspecting } from "@/lib/duck-prefs";
 import { cn } from "@/lib/utils/cn";
 
 export function SettingsButton() {
@@ -71,6 +71,7 @@ export function SettingsButton() {
             </div>
             <KeyboardSoundRow />
             <EyeTrackingRow />
+            <InspectingRow />
           </motion.div>
         )}
       </AnimatePresence>
@@ -94,6 +95,27 @@ function EyeTrackingRow() {
         on={eyeTracking}
         onClick={toggleEyeTracking}
         label="Duck follows cursor"
+      />
+    </div>
+  );
+}
+
+function InspectingRow() {
+  const { inspecting, toggleInspecting } = useDuckInspecting();
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl px-1 py-1.5">
+      <div className="flex min-w-0 flex-col">
+        <span className="text-fg text-[12.5px] font-medium">
+          Duck inspects code
+        </span>
+        <span className="text-fg-subtle text-[11px] leading-tight">
+          Hovers over your code with a magnifier while answering
+        </span>
+      </div>
+      <Switch
+        on={inspecting}
+        onClick={toggleInspecting}
+        label="Duck inspects code"
       />
     </div>
   );

@@ -403,7 +403,7 @@ export function EditorPanel({ tab, onChange, onRun }: EditorPanelProps) {
   };
 
   return (
-    <div className="bg-base flex min-h-0 flex-1 flex-col">
+    <div className="bg-base flex min-h-0 flex-1 flex-col" data-editor-panel>
       <div className="relative min-h-0 flex-1">
         <MonacoEditor
           path={tab.id}

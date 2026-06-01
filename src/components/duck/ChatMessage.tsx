@@ -5,6 +5,7 @@ import type { ChatMessage as ChatMsg } from "@/types/duck";
 import type { LanguageId } from "@/types/language";
 import { DuckMarkdown } from "@/lib/duck/markdown";
 import { DuckMascot } from "@/components/duck/DuckMascot";
+import { useDuckInspecting } from "@/lib/duck-prefs";
 
 interface ChatMessageProps {
   message: ChatMsg;
@@ -26,6 +27,7 @@ export function ChatMessage({
   currentLanguage,
 }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const { inspecting } = useDuckInspecting();
 
   if (isUser) {
     return (
@@ -53,10 +55,18 @@ export function ChatMessage({
         layoutId={isFirstDuck ? "duck-hero" : undefined}
         transition={{ type: "spring", stiffness: 220, damping: 26 }}
         className="mt-0.5 shrink-0"
-        style={{ width: 24, height: 24 }}
+        style={{ width: 36, height: 36 }}
         aria-hidden
       >
-        <DuckMascot fill state={isStreaming ? "speaking" : "idle"} />
+        {isStreaming && inspecting ? (
+          <motion.div
+            animate={{ opacity: [0.35, 0.7, 0.35] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            className="size-full rounded-full border-[1.5px] border-dashed border-[var(--color-fg-subtle)]/60"
+          />
+        ) : (
+          <DuckMascot fill state={isStreaming ? "speaking" : "idle"} />
+        )}
       </motion.div>
       <div className={isStreaming ? "min-w-0 flex-1 opacity-95" : "min-w-0 flex-1"}>
         {message.content ? (
