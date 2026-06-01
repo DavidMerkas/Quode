@@ -178,9 +178,6 @@ export function DuckPanel({
             attachment ? "What about this snippet?" : "Ask Duck…"
           }
         />
-        <p className="text-fg-subtle mt-2 px-1 text-[11px]">
-          Duck teaches. It won&apos;t just hand you the answer.
-        </p>
       </div>
     </aside>
   );

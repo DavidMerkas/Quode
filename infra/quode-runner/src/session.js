@@ -41,6 +41,12 @@ export class Session {
         LANG: "C.UTF-8",
         PYTHONUNBUFFERED: "1",
         PYTHONDONTWRITEBYTECODE: "1",
+        // Share dotnet/NuGet caches across sessions so dotnet-script doesn't
+        // re-bootstrap on every run (first run otherwise > 30s wall clock).
+        DOTNET_CLI_HOME: process.env.DOTNET_CLI_HOME ?? "/var/lib/quode-runner/dotnet",
+        NUGET_PACKAGES: process.env.NUGET_PACKAGES ?? "/var/lib/quode-runner/nuget",
+        DOTNET_NOLOGO: "1",
+        DOTNET_CLI_TELEMETRY_OPTOUT: "1",
       },
     });
 

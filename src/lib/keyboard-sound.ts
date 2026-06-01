@@ -18,7 +18,6 @@ export const KEYBOARD_PACKS = [
   { id: "eg-crystal-purple", name: "EG Crystal Purple" },
   { id: "eg-oreo", name: "EG Oreo" },
   { id: "nk-cream", name: "NK Cream" },
-  { id: "anime moan", name: "Anime Moan" },
 ] as const;
 
 export type KeyboardPackId = (typeof KEYBOARD_PACKS)[number]["id"];

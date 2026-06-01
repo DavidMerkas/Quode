@@ -98,10 +98,27 @@ export const LANGUAGES = {
   },
 
   csharp: {
-    file: "main.csx",
-    // dotnet-script installed system-wide at /opt/dotnet-tools, symlinked
-    // into /usr/local/bin/dotnet-script.
-    argv: (cwd) => [resolveBin("dotnet-script"), path.join(cwd, "main.csx")],
+    file: "Program.cs",
+    // Real `dotnet run` project so `static void Main()` works as expected.
+    // We synth a minimal .csproj on every run; MSBuild + NuGet caches are
+    // shared via DOTNET_CLI_HOME / NUGET_PACKAGES so first build is the only
+    // slow one per host.
+    argv: (cwd) => [
+      BASH,
+      "-c",
+      `cat > ${q(path.join(cwd, "app.csproj"))} <<'CSPROJ'
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+</Project>
+CSPROJ
+cd ${q(cwd)} && ${resolveBin(DOTNET_BIN)} run --nologo -v q`,
+    ],
   },
 };
 

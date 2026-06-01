@@ -15,10 +15,10 @@ interface InteractiveTerminalProps {
 }
 
 const LIGHT_THEME = {
-  background: "#fffbe6",
+  background: "#00000000",
   foreground: "#2b1f02",
   cursor: "#ff8c42",
-  cursorAccent: "#fffbe6",
+  cursorAccent: "#f9e9a8",
   selectionBackground: "#ffd43b80",
   black: "#2b1f02",
   red: "#b85c00",
@@ -39,7 +39,7 @@ const LIGHT_THEME = {
 };
 
 const DARK_THEME = {
-  background: "#0b0b0f",
+  background: "#00000000",
   foreground: "#f4f4f5",
   cursor: "#ffd43b",
   cursorAccent: "#0b0b0f",
@@ -67,6 +67,8 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
   const hostRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<import("@xterm/xterm").Terminal | null>(null);
   const fitRef = useRef<import("@xterm/addon-fit").FitAddon | null>(null);
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
 
   // Mount xterm once on first client render.
   useEffect(() => {
@@ -89,17 +91,16 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
       }
       if (disposed || !hostRef.current) return;
 
-      // Next's font loader exposes the resolved family via this CSS var.
-      // The raw value is just the family name string (e.g. "__Geist_Mono_…")
-      // which is exactly what xterm's canvas renderer needs.
-      const cssVarFont =
-        getComputedStyle(document.documentElement)
-          .getPropertyValue("--font-geist-mono")
-          .trim();
-      const fontFamily =
-        cssVarFont && cssVarFont !== ""
-          ? cssVarFont
-          : 'ui-monospace, "Menlo", "Consolas", monospace';
+      // Resolve the Next-injected mono family at runtime. The raw value of
+      // --font-geist-mono is a full family list (e.g.
+      // `'__GeistMono_x', '__GeistMono_Fallback_x'`) — append system fallbacks
+      // so the DOM renderer always has something measurable.
+      const cssVarFont = getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-geist-mono")
+        .trim();
+      const systemMono =
+        'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace';
+      const fontFamily = cssVarFont ? `${cssVarFont}, ${systemMono}` : systemMono;
 
       const term = new Terminal({
         cursorBlink: true,
@@ -111,7 +112,8 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
         convertEol: true,
         scrollback: 5000,
         allowProposedApi: true,
-        theme: theme === "dark" ? DARK_THEME : LIGHT_THEME,
+        allowTransparency: true,
+        theme: themeRef.current === "dark" ? DARK_THEME : LIGHT_THEME,
       });
       const fit = new FitAddon();
       term.loadAddon(fit);
@@ -183,14 +185,7 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
           errorMessage={runner.errorMessage}
           onKill={runner.kill}
         />
-        <div
-          ref={hostRef}
-          className="min-h-0 flex-1 px-3 pb-2 pt-1"
-          style={{
-            backgroundColor:
-              theme === "dark" ? DARK_THEME.background : LIGHT_THEME.background,
-          }}
-        />
+        <div ref={hostRef} className="min-h-0 flex-1 px-3 pb-2 pt-1" />
       </div>
     </section>
   );
