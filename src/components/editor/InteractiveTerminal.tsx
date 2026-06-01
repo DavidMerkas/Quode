@@ -5,6 +5,9 @@ import { Check, Clock, Square, Terminal as TerminalIcon, XCircle } from "lucide-
 import { useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils/cn";
 import type { RunStatus, RunSummary, UseInteractiveRun } from "@/hooks/useInteractiveRun";
+// Static import — Next bundles the CSS at build time so it's present
+// before the terminal mounts (dynamic import races the first paint).
+import "@xterm/xterm/css/xterm.css";
 
 interface InteractiveTerminalProps {
   height: number;
@@ -75,16 +78,32 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
         import("@xterm/xterm"),
         import("@xterm/addon-fit"),
       ]);
-      await import("@xterm/xterm/css/xterm.css");
       if (disposed || !hostRef.current) return;
+
+      // xterm renders to canvas, so it can't resolve CSS vars — pass the
+      // computed value of --font-geist-mono if available, else literal stack.
+      const computedFont =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--font-geist-mono")
+          .trim() || "";
+      const fontFamily = [
+        computedFont,
+        "Geist Mono",
+        "ui-monospace",
+        "JetBrains Mono",
+        "Menlo",
+        "monospace",
+      ]
+        .filter(Boolean)
+        .join(", ");
 
       const term = new Terminal({
         cursorBlink: true,
         cursorStyle: "bar",
-        fontFamily:
-          "var(--font-geist-mono), ui-monospace, 'JetBrains Mono', monospace",
+        fontFamily,
         fontSize: 12.5,
         lineHeight: 1.4,
+        letterSpacing: 0,
         convertEol: true,
         scrollback: 5000,
         theme: theme === "dark" ? DARK_THEME : LIGHT_THEME,
@@ -162,7 +181,10 @@ export function InteractiveTerminal({ height, runner }: InteractiveTerminalProps
         <div
           ref={hostRef}
           className="min-h-0 flex-1 px-3 pb-2 pt-1"
-          // xterm.js sets its own background; the parent neu-inset frames it
+          style={{
+            backgroundColor:
+              theme === "dark" ? DARK_THEME.background : LIGHT_THEME.background,
+          }}
         />
       </div>
     </section>
